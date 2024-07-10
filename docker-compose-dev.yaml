@@ -1,0 +1,21 @@
+services:
+  DELIVERY:
+    container_name: delivery
+    restart: always
+    image: node:20
+    working_dir: /usr/src/app
+    environment:
+      - HTTP_PORT=5050
+    networks:
+      - net-afs
+
+    volumes: 
+      - ./build:/usr/src/app
+    command: bash -c "ls -lh && npm i --legacy-peer-deps && npm i dotenv --legacy-peer-deps && DOTENV_CONFIG_PATH=.env.sandbox npx nodemon --exec 'node -r dotenv/config' src/main/server.js"
+    ports: 
+      - "5050:5050"
+
+networks:
+  net-afs:
+    name: afs-network
+    external: true
