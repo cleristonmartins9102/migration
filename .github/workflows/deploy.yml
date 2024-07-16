@@ -1,0 +1,115 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches:
+      - staging
+      - production
+    
+env:
+  IMAGE_NAME: afs-delivery-service
+  SERVICE_NAME: 'delivery'
+  PORT: 5050
+
+jobs:
+  sandbox-build-and-deploy:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/staging'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Installing dependencies
+        run: npm i --legacy-peer-deps
+
+      - name: Running tests
+        run: npm run test
+
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_KEY_SANDBOX }}'
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+
+      - name: Configure Docker for gcloud
+        run: gcloud auth configure-docker
+
+      - name: Create permissions.json
+        run: echo '${{ secrets.PERMISSIONS_JSON }}' | jq '.' > permissions.json
+     
+      - name: Create credentials.json
+        run: echo '${{ secrets.PERMISSIONS_JSON }}' | jq '.' > credentials.json
+
+      - name: List
+        run: cat .env.staging
+
+      - name: Build and push Docker image
+        run: |
+          IMAGE=gcr.io/${{vars.GCP_PROJECT_ID_SANDBOX}}/$IMAGE_NAME:latest
+          docker build -t $IMAGE -f deploy/dockerfile-staging .
+          docker push $IMAGE
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy $SERVICE_NAME \
+            --image gcr.io/${{vars.GCP_PROJECT_ID_SANDBOX}}/$IMAGE_NAME:latest \
+            --vpc-connector connect-cloud-run-to-vpc \
+            --add-cloudsql-instances afs-staging-services-db \
+            --region europe-west1 \
+            --allow-unauthenticated \
+            --port=${PORT} 
+
+  production-build-and-deploy:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/production'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Installing dependencies
+        run: npm i --legacy-peer-deps
+
+      - name: Running tests
+        run: npm run test
+
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_KEY_PRODUCTION }}'
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+
+      - name: Configure Docker for gcloud
+        run: gcloud auth configure-docker
+
+      - name: Create permissions.json
+        run: echo '${{ secrets.PERMISSIONS_JSON }}' | jq '.' > permissions.json
+      
+      - name: Create credentials.json
+        run: echo '${{ secrets.PERMISSIONS_JSON }}' | jq '.' > credentials.json
+      
+      - name: show env
+        run: echo ${{vars.GCP_PROJECT_ID_PRODUCTION}}
+
+      - name: Building image
+        run: |
+          IMAGE=gcr.io/${{vars.GCP_PROJECT_ID_PRODUCTION}}/$IMAGE_NAME:latest
+          docker build -t $IMAGE -f deploy/dockerfile-production .
+          docker push $IMAGE
+          
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy $SERVICE_NAME \
+              --image gcr.io/${{vars.GCP_PROJECT_ID_PRODUCTION}}/$IMAGE_NAME:latest \
+              --vpc-connector access-sql-connector \
+              --region europe-west1 \
+              --add-cloudsql-instances afs-delivery-service-db \
+              --set-env-vars DB_HOST=/cloudsql/adams-app-9d26f:europe-west2:afs-delivery-service-db \
+              --allow-unauthenticated \
+              --port=${PORT}
+              
