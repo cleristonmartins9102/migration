@@ -5,13 +5,16 @@ import sm from '@adamsfoodservice/shared-modules'
 
 const createMock = jest.fn()
 const findUniqueMock = jest.fn()
+const updateMock = jest.fn()
+
 jest.mock('@prisma/client', () => {
   return {
     PrismaClient: function () {
       return {
         members: {
           create: (data: any) => createMock(data),
-          findUnique: (data: any) => findUniqueMock(data)
+          findUnique: (data: any) => findUniqueMock(data),
+          update: (data: any) => updateMock(data)
         }
       }
     }
@@ -19,15 +22,15 @@ jest.mock('@prisma/client', () => {
 })
 describe('PgMemberRepository', () => {
   let createMemberData: any
-
+  const { created_at, updated_at, ...rest } = makeFakeMember()
   beforeAll(() => {
     timekeeper.freeze('2024-08-05T11:47:36')
-   
+    findUniqueMock.mockClear()
+    createMock.mockResolvedValue({ ...createMemberData, id: '1' })
   })
 
   beforeEach(() => {
     createMemberData = makeFakeMember()
-    createMock.mockResolvedValue({ ...createMemberData, id: '1' })
   })
 
   describe('Save', () => {
@@ -60,9 +63,11 @@ describe('PgMemberRepository', () => {
     })
 
     it('should returns the same value received from prisma', async () => {
-      const sut = new PgMemberRepository()
+      createMock.mockResolvedValueOnce({ ...rest, created_at: '2024', updated_at: '2024', id: '1' })
 
-      expect(await sut.create(createMemberData)).toEqual({ ...createMemberData, id: '1' })
+      const sut = new PgMemberRepository()
+      const data = await sut.create(createMemberData)
+      expect(data).toMatchObject({ ...rest, id: '1' })
     })
 
     it('should rethrow if prisma throws', async () => {
@@ -70,6 +75,29 @@ describe('PgMemberRepository', () => {
       const sut = new PgMemberRepository()
 
       await expect(sut.create(createMemberData)).rejects.toThrow()
+    })
+  })
+
+  describe('LoadById', () => {
+    it('should call findUnique with correct value', async () => {
+      const sut = new PgMemberRepository()
+
+      await sut.loadById('2')
+
+      expect(findUniqueMock).toHaveBeenCalled()
+      expect(findUniqueMock).toHaveBeenCalledWith({ where: { id: 2 } })
+    })
+  })
+
+  describe('Update', () => {
+    it('should call update with correct value', async () => {
+      findUniqueMock.mockResolvedValueOnce({ id: 2, role: 'dev' })
+      const sut = new PgMemberRepository()
+
+      await sut.update({ id: '2', role: 'new role' })
+
+      expect(updateMock).toHaveBeenCalled()
+      expect(updateMock).toHaveBeenCalledWith({ where: { id: 2 }, data: { role: 'new role' } })
     })
   })
 })
