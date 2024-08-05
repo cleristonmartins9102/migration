@@ -12,3 +12,29 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Members {
+  id Int @id @default(autoincrement())
+  user_account_id String  @unique
+  first_name String
+  last_name String
+  customer_type String
+  disabled Boolean
+  email_verified Boolean
+  internal_id String
+  invoiced_by String
+  payroll_number Decimal
+  role String
+  web_parent Decimal
+  settings Json
+  contact Json
+  branch Json
+  wallet Json
+  location Json
+  shop Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+
+}
+
