@@ -191,6 +191,6 @@ export const deliveryDefs = gql`
   }
 
   type Query {
-    loadUserDeliveries(id: String, dateRange: DataRangeInput, status: String): [Delivery]
+    load(id: String, dateRange: DataRangeInput, status: String): [Delivery]
   }
 `

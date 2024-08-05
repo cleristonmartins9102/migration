@@ -1,4 +1,3 @@
-export * from './make-delivery-stub'
 export * from './make-fake-order'
 export * from './make-fake-short-pickup'
 export * from './make-member-stub'

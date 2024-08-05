@@ -3,19 +3,14 @@ import { SerializeErrors, Validation } from '@/application/contract/validation'
 import timekeeper from 'timekeeper'
 import sm from '@adamsfoodservice/shared-modules'
 import { CreateMemberRepository } from '@/data/domain/features/create-member-repository'
-import { makeFakeMemberModel } from '../../../tests/staubies/fake/make-fake-member-model'
 import { CreateMemberController } from '@/application/controller'
-import { created } from '@/application/helpers/http'
-
-const removeDateTime = (object: any): any => {
-
-  const { created_at, updated_at, time, ...rest } = object
-  return rest
-}
+import { badRequest, created } from '@/application/helpers/http'
+import { makeFakeMember } from '../../../tests/stubs'
+import { MemberAlreadyExistsError } from '@/application/errors'
 
 
   describe('Create Member Controller', () => {  
-  const memberFakeData = makeFakeMemberModel()
+  const memberFakeData = makeFakeMember()
   let pgDeliveryRepoDefaultResponse: any
   const httpRequest = {
     body: memberFakeData
@@ -46,6 +41,11 @@ const removeDateTime = (object: any): any => {
 
       expect(pgMemberRepository.create).toHaveBeenCalled()
       expect(pgMemberRepository.create).toHaveBeenCalledWith(httpRequest.body)
+    })
+
+    it('Should returns 400 if pgMemberRepository throws MemberAlreadyExistsError', async () => {
+      pgMemberRepository.create.mockRejectedValueOnce(new MemberAlreadyExistsError('1'))
+       expect(await sut.perform(httpRequest)).toEqual(badRequest({ error: new MemberAlreadyExistsError('1').message }))
     })
 
     it('Should rethrow if pgMemberRepository throw ', async () => {

@@ -10,6 +10,13 @@ export class IsNotStringError extends CustomError {
     this.name = 'IsNotStringError'
   }
 }
+export class MemberAlreadyExistsError extends CustomError {
+  constructor (user_account_id: string) {
+    super(`the member already exists with user_account_id - ${user_account_id}`)
+    this.parameterName = user_account_id
+    this.name = 'MemberAlreadyExistsError'
+  }
+}
 export class IsNotObjectError extends CustomError {
   constructor (parameterName: string) {
     super('the parameter is not an object')

@@ -1,7 +1,16 @@
+import { EmailValidator } from './email-validator'
+import { IsArrayValidator } from './is-array-validator'
+import { IsBooleanValidator } from './is-boolean-validator'
+import { IsNanValidator } from './is-nan-validator'
+import { IsNumberValidator } from './is-number-validator'
+import { IsObjectValidator } from './is-object-validator'
+import { IsStringValidator } from './is-string-validator'
+import { MinValidate } from './min-validate'
+import { RequiredParameterValidator } from './required-parameter-validator'
+import { Validation } from '@/application/contract/validation'
 
-import { Validator } from '@adamsfoodservice/shared-modules'
 export class BuilderValidator {
-  private readonly validators: Validator [] = []
+  private readonly validators: Validation [] = []
   constructor (private readonly paramName: string) {}
 
   required (): this {

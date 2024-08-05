@@ -3,10 +3,13 @@ import { CreateMemberModel } from '@/data/domain/models';
 import { MemberModel } from '@adamsfoodservice/core-models';
 import { PrismaClient } from '@prisma/client';
 import sm from '@adamsfoodservice/shared-modules'
+import { MemberAlreadyExistsError } from '@/application/errors';
 
 export class PgMemberRepository implements CreateMemberRepository {
-  async create (memberData: CreateMemberModel): Promise<MemberModel> {
+  async create(memberData: CreateMemberModel): Promise<MemberModel> {
     const prisma = new PrismaClient();
+    const memberExists = await prisma.members.findUnique({ where: { user_account_id: memberData.user_account_id } })
+    if (memberExists) throw new MemberAlreadyExistsError(memberData.user_account_id)
     const prismaResponse = await prisma.members.create({
       data: memberData
     })
@@ -29,8 +32,8 @@ export class PgMemberRepository implements CreateMemberRepository {
       settings: prismaResponse.settings as any,
       contact: prismaResponse.contact as any,
       web_parent: prismaResponse.web_parent as any,
-      updated_at: new sm.DateTime.MomentAdapter(prismaResponse.createdAt),
-      created_at: new sm.DateTime.MomentAdapter(prismaResponse.updatedAt)
+      updated_at: new sm.DateTime.MomentAdapter(prismaResponse.created_at),
+      created_at: new sm.DateTime.MomentAdapter(prismaResponse.updated_at)
     }
     return memberModel
   }
