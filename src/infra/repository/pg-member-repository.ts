@@ -4,10 +4,10 @@ import { MemberModel, UpdateMemberModel } from '@adamsfoodservice/core-models';
 import { PrismaClient } from '@prisma/client';
 import sm from '@adamsfoodservice/shared-modules'
 import { MemberAlreadyExistsError } from '@/application/errors';
-import { LoadByIdRepository, LoadByInternalIdRepository, UpdateMemberRepository } from '@/data/domain/features';
+import { LoadByIdRepository, LoadByInternalIdRepository, LoadByUserAccountIdRepository, UpdateMemberRepository } from '@/data/domain/features';
 import { DeleteMemberRepository } from '@/data/domain/features/delete/delete-member-repository';
 
-type Contracts = CreateMemberRepository & LoadByIdRepository & UpdateMemberRepository & LoadByInternalIdRepository & DeleteMemberRepository
+type Contracts = CreateMemberRepository & LoadByIdRepository & UpdateMemberRepository & LoadByInternalIdRepository & LoadByUserAccountIdRepository & DeleteMemberRepository
 export class PgMemberRepository implements Contracts {
   async create(memberData: CreateMemberHouseHold | CreateMemberShop): Promise<MemberModel> {
     const prisma = new PrismaClient();
@@ -65,6 +65,47 @@ export class PgMemberRepository implements Contracts {
     const prismaResponse: any = await prisma.member.findUnique(
       {
         where: { id: parseInt(id) },
+        include: {
+          location: true,
+          contact: true,
+          wallet: true,
+          settings: true,
+          membershop: true,
+          memberhousehould: true,
+        },
+      })
+      
+    if (!prismaResponse) return null
+    const memberModel = {
+      id: prismaResponse.id.toString(),
+      user_account_id: prismaResponse.user_account_id,
+      first_name: prismaResponse.first_name,
+      last_name: prismaResponse.last_name,
+      customer_type: prismaResponse.customer_type,
+      disabled: prismaResponse.disabled,
+      email_verified: prismaResponse.email_verified,
+      internal_id: prismaResponse.internal_id,
+      invoiced_by: prismaResponse.invoiced_by,
+      payroll_number: parseInt(prismaResponse.payroll_number as any),
+      role: prismaResponse.role,
+      branch: prismaResponse.branch as any,
+      wallet: this.omitId(prismaResponse.wallet, 'memberId'),
+      location: this.omitId(prismaResponse.location, 'memberId'),
+      shop: this.omitId(prismaResponse.shop, 'memberId'),
+      settings: this.omitId(prismaResponse.settings, 'memberId') as any,
+      contact: this.omitId(prismaResponse.contact, 'memberId'),
+      web_parent: prismaResponse.web_parent as any,
+      updated_at: new sm.DateTime.MomentAdapter(prismaResponse.created_at),
+      created_at: new sm.DateTime.MomentAdapter(prismaResponse.updated_at)
+    }
+    return memberModel
+  }
+
+  async loadByUserAccountId(userAccountId: string): Promise<MemberModel | null> {
+    const prisma = new PrismaClient();
+    const prismaResponse: any = await prisma.member.findUnique(
+      {
+        where: { user_account_id: userAccountId },
         include: {
           location: true,
           contact: true,

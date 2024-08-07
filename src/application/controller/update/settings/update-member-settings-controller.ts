@@ -5,8 +5,6 @@ import { UpdateMemberSettings } from '@/data/domain/features/update/update-membe
 import { ValidatorComposite } from '@/validator';
 import { BuilderValidator } from '@/validator/build-validator';
 
-
-
 export class UpdateMemberSettingsController extends Controller<any, any> {
   constructor (private readonly updateMemberSettingsUseCase: UpdateMemberSettings) { super() }
   async perform(httpRequest: HttpRequest<UpdateMemberSettingsController.InputBody, unknown>): Promise<HttpResponse<any>> {
@@ -17,7 +15,6 @@ export class UpdateMemberSettingsController extends Controller<any, any> {
 
   buildValidator(): ValidationType & SerializeErrors {
     return new ValidatorComposite([
-      ...BuilderValidator.of('id').isString().build(),
       ...BuilderValidator.of('config').isObject().build(),
       ...BuilderValidator.of('resource').isString().build()
     ])
@@ -26,7 +23,6 @@ export class UpdateMemberSettingsController extends Controller<any, any> {
 
 export namespace UpdateMemberSettingsController {
   export type InputBody = {
-    id: string
     resource: string
     config: {
       flag: boolean

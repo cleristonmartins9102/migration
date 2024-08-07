@@ -19,7 +19,6 @@ export class UpdateSmsSettingsControllerAdapter extends Controller<any, any> {
     const { body } = httpRequest
     if (!body) return badRequest('body')
     const adaptedData: UpdateMemberSettingsController.InputBody = {
-      id: body.id,
       resource: UpdateMemberSettings.Resource.sms,
       config: {
         flag: body.data.flag,
@@ -32,7 +31,6 @@ export class UpdateSmsSettingsControllerAdapter extends Controller<any, any> {
 
   buildValidator(): ValidationType & SerializeErrors {
     return new ValidatorComposite([
-      ...BuilderValidator.of('id').isNan().build(),
       ...BuilderValidator.of('data').isObject().build()
     ])
   }

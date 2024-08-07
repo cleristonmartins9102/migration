@@ -1,8 +1,12 @@
 import { Router } from 'express';
 import { expressAdapter } from '@/main/adapters';
 import { updatePushSettingsControllerAdapterFactory, updateSmsSettingsControllerAdapterFactory } from '@/main/factories/controller';
+import { Middleware } from '@adamsfoodservice/shared-middleware';
+import path from 'path'
+import { storage } from '@/application/storage/storage';
 
 export const updateMemberSettingsRouter = (router: Router): void => {
-  router.post('/update-sms-notifications', expressAdapter(updateSmsSettingsControllerAdapterFactory()))
-  router.post('/update-push-notifications', expressAdapter(updatePushSettingsControllerAdapterFactory()))
+  const userAuth = Middleware.userAuth(path.join(__dirname, '../../../../credentials.json'), storage.currentUser)
+  router.post('/update-sms-notifications',  userAuth, expressAdapter(updateSmsSettingsControllerAdapterFactory()))
+  router.post('/update-push-notifications', userAuth, expressAdapter(updatePushSettingsControllerAdapterFactory()))
 }

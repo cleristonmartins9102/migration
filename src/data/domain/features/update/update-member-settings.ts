@@ -4,7 +4,6 @@ export interface UpdateMemberSettings {
 
 export namespace UpdateMemberSettings {
   export type Params = {
-    id: string
     resource: Resource
     config: {
       flag: boolean
