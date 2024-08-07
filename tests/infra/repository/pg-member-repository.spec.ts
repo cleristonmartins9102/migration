@@ -2,8 +2,15 @@ import { PgMemberRepository } from '@/infra/repository/pg-member-repository'
 import { makeFakeMember } from '../../../tests/stubs/make-member-stub'
 import timekeeper from 'timekeeper';
 import sm from '@adamsfoodservice/shared-modules'
+import { MemberModel } from '@adamsfoodservice/core-models';
 
-const createMock = jest.fn()
+const createMemberMock = jest.fn()
+createMemberMock.mockResolvedValue({ id: 1 })
+const createContactMock = jest.fn()
+const createLocationMock = jest.fn()
+const createWalletMock = jest.fn()
+const createShopMock = jest.fn()
+const createSettingsMock = jest.fn()
 const findUniqueMock = jest.fn()
 const updateMock = jest.fn()
 
@@ -11,8 +18,28 @@ jest.mock('@prisma/client', () => {
   return {
     PrismaClient: function () {
       return {
-        members: {
-          create: (data: any) => createMock(data),
+        member: {
+          create: (data: any) => createMemberMock(data),
+          findUnique: (data: any) => findUniqueMock(data),
+          update: (data: any) => updateMock(data)
+        },
+        contact: {
+          create: (data: any) => createContactMock(data),
+          findUnique: (data: any) => findUniqueMock(data),
+          update: (data: any) => updateMock(data)
+        },
+        location: {
+          create: (data: any) => createLocationMock(data),
+          findUnique: (data: any) => findUniqueMock(data),
+          update: (data: any) => updateMock(data)
+        },
+        settings: {
+          create: (data: any) => createSettingsMock(data),
+          findUnique: (data: any) => findUniqueMock(data),
+          update: (data: any) => updateMock(data)
+        },
+        wallet: {
+          create: (data: any) => createWalletMock(data),
           findUnique: (data: any) => findUniqueMock(data),
           update: (data: any) => updateMock(data)
         }
@@ -21,16 +48,22 @@ jest.mock('@prisma/client', () => {
   }
 })
 describe('PgMemberRepository', () => {
-  let createMemberData: any
+  let createMemberData: MemberModel
   const { created_at, updated_at, ...rest } = makeFakeMember()
   beforeAll(() => {
     timekeeper.freeze('2024-08-05T11:47:36')
     findUniqueMock.mockClear()
-    createMock.mockResolvedValue({ ...createMemberData, id: '1' })
+    createMemberMock.mockResolvedValue({ ...createMemberData, id: '1' })
   })
 
   beforeEach(() => {
     createMemberData = makeFakeMember()
+    createMemberMock.mockClear()
+    createContactMock.mockClear()
+    createLocationMock.mockClear()
+    createSettingsMock.mockClear()
+    createWalletMock.mockClear()
+    createShopMock.mockClear()
   })
 
   describe('Save', () => {
@@ -53,17 +86,89 @@ describe('PgMemberRepository', () => {
 
 
 
-    it('should call create with correct value', async () => {
+    it('should call member.create with correct value', async () => {
       const sut = new PgMemberRepository()
-
+      const { shop, wallet, location, settings, contact, ...rest } = createMemberData
       await sut.create(createMemberData)
 
-      expect(createMock).toHaveBeenCalled()
-      expect(createMock).toHaveBeenCalledWith({ data: createMemberData })
+      expect(createMemberMock).toHaveBeenCalled()
+      expect(createMemberMock).toHaveBeenCalledWith({ data: rest })
+    })
+
+    it('should call contact.create with correct value', async () => {
+      const sut = new PgMemberRepository()
+      const { shop, wallet, location, settings, contact, ...rest } = createMemberData
+      await sut.create(createMemberData)
+
+      expect(createContactMock).toHaveBeenCalled()
+      expect(createContactMock).toHaveBeenCalledWith({ data: { ...contact, member: { connect: { id: '1' } } } })
+    })
+
+    it('should call address.create with correct value', async () => {
+      const sut = new PgMemberRepository()
+      const { shop, wallet, location, settings, contact, ...rest } = createMemberData
+      await sut.create(createMemberData)
+
+      expect(createLocationMock).toHaveBeenCalled()
+      expect(createLocationMock).toHaveBeenCalledWith({ data: { ...location, member: { connect: { id: '1' } } } })
+    })
+
+    it('should call settings.create with correct value', async () => {
+      const sut = new PgMemberRepository()
+      const { shop, wallet, location, settings, contact, ...rest } = createMemberData
+      await sut.create(createMemberData)
+      const deliveryDays = []
+      if (settings.delivery_day_1) deliveryDays.push('mon')
+      if (settings.delivery_day_2) deliveryDays.push('tue')
+      if (settings.delivery_day_3) deliveryDays.push('wed')
+      if (settings.delivery_day_4) deliveryDays.push('thu')
+      if (settings.delivery_day_5) deliveryDays.push('fri')
+      if (settings.delivery_day_6) deliveryDays.push('sat')
+      if (settings.delivery_day_7) deliveryDays.push('sun')
+      const settingsHandled = {
+        can_deliver : settings.can_deliver,
+        delivery_day : deliveryDays,
+        push_asked : settings.push_asked,
+        marketing_email : settings.transac_marketing_notifications.marketing.email,
+        marketing_push : settings.transac_marketing_notifications.marketing.push,
+        marketing_sms : settings.transac_marketing_notifications.marketing.sms,
+        transactional_email : settings.transac_marketing_notifications.transactional.email,
+        transactional_push : settings.transac_marketing_notifications.transactional.push,
+        transactional_sms : settings.transac_marketing_notifications.transactional.sms
+      }
+      expect(createSettingsMock).toHaveBeenCalled()
+      expect(createSettingsMock).toHaveBeenCalledWith({ data: { ...settingsHandled, member: { connect: { id: '1' } } } })
+    })
+
+    it('should call wallet.create with correct value', async () => {
+      const sut = new PgMemberRepository()
+      const { shop, wallet, location, settings, contact, ...rest } = createMemberData
+      await sut.create(createMemberData)
+
+      expect(createWalletMock).toHaveBeenCalled()
+      expect(createWalletMock).toHaveBeenCalledWith({ data: { ...wallet, member: { connect: { id: '1' } } } })
+    })
+
+    it('should call shop.create with correct value if is a shop custumer', async () => {
+      const sut = new PgMemberRepository()
+      const { shop, wallet, location, settings, contact, ...rest } = createMemberData
+      await sut.create(createMemberData)
+
+      expect(createShopMock).toHaveBeenCalled()
+      expect(createShopMock).toHaveBeenCalledWith({ data: { ...shop, member: { connect: { id: '1' } } } })
+    })
+
+    it('should not call shop.create with correct value if is not a shop', async () => {
+      const sut = new PgMemberRepository()
+      const { shop, ...withoutShop } = createMemberData
+
+      await sut.create(withoutShop)
+
+      expect(createShopMock).not.toHaveBeenCalled()
     })
 
     it('should returns the same value received from prisma', async () => {
-      createMock.mockResolvedValueOnce({ ...rest, created_at: '2024', updated_at: '2024', id: '1' })
+      createMemberMock.mockResolvedValueOnce({ ...rest, created_at: '2024', updated_at: '2024', id: '1' })
 
       const sut = new PgMemberRepository()
       const data = await sut.create(createMemberData)
@@ -71,7 +176,7 @@ describe('PgMemberRepository', () => {
     })
 
     it('should rethrow if prisma throws', async () => {
-      createMock.mockRejectedValueOnce(new Error(''))
+      createMemberMock.mockRejectedValueOnce(new Error(''))
       const sut = new PgMemberRepository()
 
       await expect(sut.create(createMemberData)).rejects.toThrow()

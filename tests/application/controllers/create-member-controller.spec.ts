@@ -11,6 +11,7 @@ import { MemberAlreadyExistsError } from '@/application/errors'
 
   describe('Create Member Controller', () => {  
   const memberFakeData = makeFakeMember()
+  let formatMemberDataService: any
   let pgDeliveryRepoDefaultResponse: any
   const httpRequest = {
     body: memberFakeData
@@ -24,7 +25,9 @@ import { MemberAlreadyExistsError } from '@/application/errors'
     timekeeper.freeze('2024-07-15 00:00:00')
     pgDeliveryRepoDefaultResponse = { ...memberFakeData, id: '1', created_at: new sm.DateTime.MomentAdapter(), updated_at: new sm.DateTime.MomentAdapter() }
     pgMemberRepository = mock()
-    sut = new CreateMemberController(pgMemberRepository)
+    formatMemberDataService = jest.fn()
+    formatMemberDataService.mockReturnValue({ formatedData: 'anydata' })
+    sut = new CreateMemberController(pgMemberRepository, formatMemberDataService)
     controllerBuildValidatorSpy = jest.spyOn(sut, 'buildValidator')
     validatorMock.validate.mockResolvedValue(null)
     controllerBuildValidatorSpy.mockReturnValue(validatorMock)
@@ -35,12 +38,21 @@ import { MemberAlreadyExistsError } from '@/application/errors'
     pgMemberRepository.create.mockClear()
   })
 
+  describe('format data', () => {
+    it('should call formatMemberData with correct value', async () => {
+      await sut.perform(httpRequest)
+
+      expect(formatMemberDataService).toHaveBeenCalled()
+      expect(formatMemberDataService).toHaveBeenCalledWith(httpRequest.body)
+    })
+  })
+
   describe('pgMemberRepository', () => {
     it('Should call pgMemberRepository with correct value', async () => {
       await sut.perform(httpRequest)
 
       expect(pgMemberRepository.create).toHaveBeenCalled()
-      expect(pgMemberRepository.create).toHaveBeenCalledWith(httpRequest.body)
+      expect(pgMemberRepository.create).toHaveBeenCalledWith({ formatedData: 'anydata' })
     })
 
     it('Should returns 400 if pgMemberRepository throws MemberAlreadyExistsError', async () => {

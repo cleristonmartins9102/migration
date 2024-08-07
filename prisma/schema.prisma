@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,28 +7,100 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Members {
-  id Int @id @default(autoincrement())
-  user_account_id String  @unique
-  first_name String
-  last_name String
-  customer_type String
-  disabled Boolean
-  email_verified Boolean
-  internal_id String
-  invoiced_by String
-  payroll_number Decimal
-  role String
-  web_parent Decimal
-  settings Json
-  contact Json
-  branch Json
-  wallet Json
-  location Json
-  shop Json
-  created_at   DateTime @default(now())
-  updated_at  DateTime @updatedAt
+model Member {
+  id             Int       @id @default(autoincrement())
+  user_account_id String    @unique
+  first_name      String
+  last_name       String
+  customer_type   String
+  disabled        Boolean @default(true)
+  email_verified  Boolean @default(false)
+  internal_id     String  @unique
+  invoiced_by     String
+  role            String
+  web_parent      Int
+  branch          Json
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
 
+  // Optional one-to-one relation to Address
+  location         Location?  @relation("MemberLocation")
 
+  // Optional one-to-one relation to Shop
+  membershop       MemberShop?     @relation("MemberShop")
+
+  // Optional one-to-one relation to Contact
+  contact         Contact?  @relation("MemberContact")
+
+  // Optional one-to-one relation to Wallet
+  wallet          Wallet?   @relation("MemberWallet")
+
+  // Optional one-to-one relation to Settings
+  settings        Settings? @relation("MemberSettings")
+
+  // Optional one-to-one relation to Settings
+  memberhousehould  MemberHouseHold? @relation("MemberHouseHold")
 }
+
+model MemberHouseHold {
+  id        Int      @id @default(autoincrement())
+  payroll_number Int
+
+  member    Member? @relation("MemberHouseHold", fields: [memberId], references: [id], onDelete: Cascade)
+  memberId  Int?    @unique
+}
+
+model MemberShop {
+  id        Int     @id @default(autoincrement())
+  name      String
+
+  member    Member? @relation("MemberShop", fields: [memberId], references: [id], onDelete: Cascade)
+  memberId  Int?    @unique
+}
+
+model Location {
+  id        Int      @id @default(autoincrement())
+  address   String
+  postcode  String
+  city      String
+  number    String
+  // One-to-one relation with Member
+  member    Member?  @relation("MemberLocation", fields: [memberId], references: [id], onDelete: Cascade)
+  memberId  Int?     @unique
+}
+
+model Settings {
+  id                     Int      @id @default(autoincrement())
+  can_deliver            Boolean
+  delivery_day           String[]
+  fcm_tokens           String[]
+  push_asked             Boolean
+  marketing_email        Boolean
+  marketing_push         Boolean
+  marketing_sms          Boolean
+  transactional_email    Boolean
+  transactional_push     Boolean
+  transactional_sms      Boolean
+
+  member                 Member?  @relation("MemberSettings", fields: [memberId], references: [id], onDelete: Cascade)
+  memberId               Int?     @unique
+}
+
+model Wallet {
+  id        Int      @id @default(autoincrement())
+  balance   Float
+
+  member    Member?  @relation("MemberWallet", fields: [memberId], references: [id], onDelete: Cascade)
+  memberId  Int?     @unique
+}
+
+model Contact {
+  id           Int      @id @default(autoincrement())
+  phone_number String
+  email        String
+
+  member       Member?  @relation("MemberContact", fields: [memberId], references: [id], onDelete: Cascade)
+  memberId     Int?     @unique
+}
+
 

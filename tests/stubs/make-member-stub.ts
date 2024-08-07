@@ -1,10 +1,11 @@
-import { MemberModel } from '@adamsfoodservice/core-models'
+import { MemberModel, MemberShop } from '@adamsfoodservice/core-models'
 import { faker } from '@faker-js/faker'
 import sm from '@adamsfoodservice/shared-modules'
+import { MemberHouseHold } from '@prisma/client'
 
-export const makeFakeMember = (): MemberModel => {
-  const fakeMember: MemberModel = {
-    id: faker.string.uuid(),
+export const makeFakeMember = (): MemberShop & MemberHouseHold => {
+  const fakeMember: any = {
+    id: faker.string.uuid() as never,
     user_account_id: '100',
     first_name: faker.word.sample(),
     last_name: faker.word.sample(),
@@ -13,10 +14,9 @@ export const makeFakeMember = (): MemberModel => {
     email_verified: true,
     internal_id: faker.string.uuid(),
     invoiced_by: faker.word.sample(),
-    payroll_number: faker.number.int(),
+    payroll_number: faker.number.int() as any,
     role: faker.word.sample(),
     branch: {
-      id: faker.string.uuid(),
       internal_id: faker.number.int() as any,
       name: 'company'
     },
@@ -30,13 +30,7 @@ export const makeFakeMember = (): MemberModel => {
       city: faker.location.city()
     },
     shop: {
-      name: 'company',
-      location: {
-        address: faker.location.streetAddress(),
-        number: faker.number.int().toString(),
-        postcode: faker.location.zipCode(),
-        city: faker.location.city()
-      }
+      name: 'company'
     },
     settings: {
       can_deliver: true,
@@ -47,11 +41,7 @@ export const makeFakeMember = (): MemberModel => {
       delivery_day_5: faker.date.weekday(),
       delivery_day_6: faker.date.weekday(),
       delivery_day_7: faker.date.weekday(),
-      notifications: {
-        email: true,
-        push: true,
-        sms: true
-      },
+
       push_asked: true,
       transac_marketing_notifications: {
         marketing: {

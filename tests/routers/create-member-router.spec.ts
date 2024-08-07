@@ -88,21 +88,15 @@ describe('Create Delivery Router', () => {
     expect(httpResponse.body.filter((error: any) => error.parameter === 'branch').length > 0).toBeTruthy()
   })
 
+  describe('shop', () => {
+    it('should return 400 if missing shop', async () => {
+      const httpResponse = await request(await createApp())
+        .put('/api/member/v1/create')
+        .send()
+        .expect(400)
+      expect(httpResponse.body.filter((error: any) => error.parameter === 'shop').length > 0).toBeTruthy()
+    })
 
-  it('should return 400 if missing location', async () => {
-    const httpResponse = await request(await createApp())
-      .put('/api/member/v1/create')
-      .send()
-      .expect(400)
-    expect(httpResponse.body.filter((error: any) => error.parameter === 'location').length > 0).toBeTruthy()
-  })
-
-  it('should return 400 if missing shop', async () => {
-    const httpResponse = await request(await createApp())
-      .put('/api/member/v1/create')
-      .send()
-      .expect(400)
-    expect(httpResponse.body.filter((error: any) => error.parameter === 'shop').length > 0).toBeTruthy()
   })
 
 

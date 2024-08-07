@@ -17,6 +17,7 @@ export default [
     ...tseslint.configs.recommended,
     {
       rules: {
+        "camelcase": "off",
         quotes: ['error', 'single'],
         'object-curly-spacing': ['error', 'always'],
         '@typescript-eslint/strict-boolean-expressions': 'off',

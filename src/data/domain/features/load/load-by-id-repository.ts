@@ -1,5 +1,5 @@
 import { MemberModel } from '@adamsfoodservice/core-models';
 
-export interface LoadMemberByIdRepository {
+export interface LoadByIdRepository {
   loadById (id: string): Promise<MemberModel | null>
 }

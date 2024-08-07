@@ -1,13 +1,14 @@
 import { RecordNotFoundError } from '@/application/errors';
-import { LoadMemberByIdRepository, UpdateMemberRepository } from '../domain/features';
+import { UpdateMemberRepository } from '../domain/features';
 import { UpdateMember, UpdateMemberModel } from '../domain/features/update-member';
+import { LoadByIdRepository } from '@/data/domain/features'
 
 export class DbUpdateMember implements UpdateMember {
-  constructor (private readonly pgMemberRepository: UpdateMemberRepository & LoadMemberByIdRepository) {}
+  constructor (private readonly pgMemberRepository: UpdateMemberRepository & LoadByIdRepository) {}
   async update(memberData: UpdateMemberModel): Promise<boolean> {
     const member = await this.pgMemberRepository.loadById(memberData.id)
     if (!member) throw new RecordNotFoundError('Member', 'id', memberData.id)
-    const notAllowedUpdatedFields = ['created_at', 'updated_at', 'internal_ids']
+    const notAllowedUpdatedFields = ['created_at', 'updated_at', 'internal_id']
     for (const field in memberData) {
       const updateMemberDataField = (memberData as any)[field]
       const currentMemberDataField = (member as any)[field]
