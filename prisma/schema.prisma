@@ -73,7 +73,7 @@ model Settings {
   id                     Int      @id @default(autoincrement())
   can_deliver            Boolean
   delivery_day           String[]
-  fcm_tokens           String[]
+  fcm_tokens             String[]
   push_asked             Boolean
   marketing_email        Boolean
   marketing_push         Boolean

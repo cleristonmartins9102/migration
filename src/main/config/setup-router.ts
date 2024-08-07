@@ -1,8 +1,6 @@
 import { Router, Express } from 'express'
-import { createMemberRouter } from '../routers/create-member-router'
-import { updateMemberRouter } from '../routers/update-member-router'
-import { loadMemberByInternalIdRouter } from '../routers/load-member-by-internal-id.router'
-import { acceptMemberRouter } from '../routers/accept-member-router'
+import { createMemberRouter, deleteMemberRouter, acceptMemberRouter, loadMemberByInternalIdRouter, updateMemberRouter } from '../routers'
+import { updateMemberSettingsRouter } from '../routers/update/update-member-settings-router'
 
 export const setupRouters = async (app: Express): Promise<void> => {
   const router = Router()
@@ -11,4 +9,6 @@ export const setupRouters = async (app: Express): Promise<void> => {
   updateMemberRouter(router)
   loadMemberByInternalIdRouter(router)
   acceptMemberRouter(router)
+  deleteMemberRouter(router)
+  updateMemberSettingsRouter(router)
 }

@@ -5,8 +5,10 @@ import { PrismaClient } from '@prisma/client';
 import sm from '@adamsfoodservice/shared-modules'
 import { MemberAlreadyExistsError } from '@/application/errors';
 import { LoadByIdRepository, LoadByInternalIdRepository, UpdateMemberRepository } from '@/data/domain/features';
+import { DeleteMemberRepository } from '@/data/domain/features/delete/delete-member-repository';
 
-export class PgMemberRepository implements CreateMemberRepository, LoadByIdRepository, UpdateMemberRepository, LoadByInternalIdRepository {
+type Contracts = CreateMemberRepository & LoadByIdRepository & UpdateMemberRepository & LoadByInternalIdRepository & DeleteMemberRepository
+export class PgMemberRepository implements Contracts {
   async create(memberData: CreateMemberHouseHold | CreateMemberShop): Promise<MemberModel> {
     const prisma = new PrismaClient();
     const memberExists = await prisma.member.findUnique({ where: { user_account_id: memberData.user_account_id } })
@@ -99,8 +101,6 @@ export class PgMemberRepository implements CreateMemberRepository, LoadByIdRepos
     return memberModel
   }
 
-
-
   async loadByInternalId(internal_id: string): Promise<MemberModel | null> {
     const prisma = new PrismaClient();
     const prismaResponse: any = await prisma.member.findUnique({
@@ -161,6 +161,12 @@ export class PgMemberRepository implements CreateMemberRepository, LoadByIdRepos
     } catch (error) {
       console.log(error)
     }
+    return true
+  }
+
+  async delete(id: string): Promise<boolean> {
+    const prisma = new PrismaClient()
+    await prisma.member.delete({ where: { id: parseInt(id) } })
     return true
   }
 

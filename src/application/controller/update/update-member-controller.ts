@@ -1,8 +1,8 @@
-import { UpdateMember } from '@/data/domain/features/update-member';
-import { Controller, HttpRequest, HttpResponse, ValidationType } from '../contract';
-import { RecordNotFoundError } from '../errors';
-import { notFound, ok } from '../helpers/http';
-import { SerializeErrors } from '../contract/validation';
+import { UpdateMember } from '@/data/domain/features/update/update-member';
+import { Controller, HttpRequest, HttpResponse, ValidationType } from '@/application/contract';
+import { RecordNotFoundError } from '@/application/errors';
+import { notFound, ok } from '@/application/helpers/http';
+import { SerializeErrors } from '@/application/contract/validation';
 import { ValidatorComposite } from '@/validator';
 import { BuilderValidator } from '@/validator/build-validator';
 

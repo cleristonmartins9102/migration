@@ -1,6 +1,6 @@
 import { RecordNotFoundError } from '@/application/errors';
-import { UpdateMemberRepository } from '../domain/features';
-import { UpdateMember, UpdateMemberModel } from '../domain/features/update-member';
+import { UpdateMemberRepository } from '@/data/domain/features';
+import { UpdateMember, UpdateMemberModel } from '@/data/domain/features/update/update-member';
 import { LoadByIdRepository } from '@/data/domain/features'
 
 export class DbUpdateMember implements UpdateMember {

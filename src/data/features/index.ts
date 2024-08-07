@@ -1,2 +1,2 @@
 export * from './accept-member-use-case'
-export * from './db-update-member'
+export * from './update/db-update-member'

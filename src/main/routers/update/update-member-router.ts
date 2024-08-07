@@ -1,8 +1,8 @@
 import { Router } from 'express'
-import { expressAdapter } from '../adapters'
+import { expressAdapter } from '@/main/adapters'
 import sm from '@adamsfoodservice/shared-modules'
 import { storage } from '@/application/storage/storage'
-import { updateMemberControllerFactory } from '../factories/controller/update-member-controller-factory'
+import { updateMemberControllerFactory } from '@/main/factories/controller/update-member-controller-factory'
 
 const fakeAuthMiddleware = (req: any, res: any, next: any): void => {
   new sm.Hooks.AsyncScope(() => {
