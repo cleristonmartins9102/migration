@@ -2,6 +2,7 @@ import { Router, Express } from 'express'
 import { createMemberRouter } from '../routers/create-member-router'
 import { updateMemberRouter } from '../routers/update-member-router'
 import { loadMemberByInternalIdRouter } from '../routers/load-member-by-internal-id.router'
+import { acceptMemberRouter } from '../routers/accept-member-router'
 
 export const setupRouters = async (app: Express): Promise<void> => {
   const router = Router()
@@ -9,4 +10,5 @@ export const setupRouters = async (app: Express): Promise<void> => {
   createMemberRouter(router)
   updateMemberRouter(router)
   loadMemberByInternalIdRouter(router)
+  acceptMemberRouter(router)
 }

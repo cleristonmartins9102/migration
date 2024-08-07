@@ -1,10 +1,10 @@
 import { CreateMemberRepository } from '@/data/domain/features/create-member-repository'
 import { CreateMemberHouseHold, CreateMemberShop } from '@/data/domain/models';
-import { MemberModel } from '@adamsfoodservice/core-models';
+import { MemberModel, UpdateMemberModel } from '@adamsfoodservice/core-models';
 import { PrismaClient } from '@prisma/client';
 import sm from '@adamsfoodservice/shared-modules'
 import { MemberAlreadyExistsError } from '@/application/errors';
-import { LoadByIdRepository, LoadByInternalIdRepository, UpdateMemberModel, UpdateMemberRepository } from '@/data/domain/features';
+import { LoadByIdRepository, LoadByInternalIdRepository, UpdateMemberRepository } from '@/data/domain/features';
 
 export class PgMemberRepository implements CreateMemberRepository, LoadByIdRepository, UpdateMemberRepository, LoadByInternalIdRepository {
   async create(memberData: CreateMemberHouseHold | CreateMemberShop): Promise<MemberModel> {
@@ -65,13 +65,14 @@ export class PgMemberRepository implements CreateMemberRepository, LoadByIdRepos
         where: { id: parseInt(id) },
         include: {
           location: true,
-          membershop: true,
           contact: true,
           wallet: true,
           settings: true,
+          membershop: true,
           memberhousehould: true,
         },
       })
+      
     if (!prismaResponse) return null
     const memberModel = {
       id: prismaResponse.id.toString(),
@@ -86,17 +87,19 @@ export class PgMemberRepository implements CreateMemberRepository, LoadByIdRepos
       payroll_number: parseInt(prismaResponse.payroll_number as any),
       role: prismaResponse.role,
       branch: prismaResponse.branch as any,
-      wallet: prismaResponse.wallet as any,
-      location: prismaResponse.location as any,
-      shop: prismaResponse.shop as any,
-      settings: prismaResponse.settings as any,
-      contact: prismaResponse.contact as any,
+      wallet: this.omitId(prismaResponse.wallet, 'memberId'),
+      location: this.omitId(prismaResponse.location, 'memberId'),
+      shop: this.omitId(prismaResponse.shop, 'memberId'),
+      settings: this.omitId(prismaResponse.settings, 'memberId') as any,
+      contact: this.omitId(prismaResponse.contact, 'memberId'),
       web_parent: prismaResponse.web_parent as any,
       updated_at: new sm.DateTime.MomentAdapter(prismaResponse.created_at),
       created_at: new sm.DateTime.MomentAdapter(prismaResponse.updated_at)
     }
     return memberModel
   }
+
+
 
   async loadByInternalId(internal_id: string): Promise<MemberModel | null> {
     const prisma = new PrismaClient();
@@ -140,9 +143,37 @@ export class PgMemberRepository implements CreateMemberRepository, LoadByIdRepos
   }
 
   async update(memberData: UpdateMemberModel): Promise<boolean> {
-    const { id, ...withoutId } = memberData
+    const { id, wallet, settings, location, shop, contact, payroll_number,...withoutId } = memberData
     const prisma = new PrismaClient();
-    await prisma.member.update({ where: { id: parseInt(id) }, data: withoutId as any })
-    return '' as any
+    try {
+      const data: any = withoutId
+      if (payroll_number) data.memberhouse = { update: { payroll_number } }
+      if (shop) data.shop = { update: shop }
+      if (wallet) {
+        delete (wallet as any).id
+        data.wallet = { update: wallet }
+      }
+      if (settings) data.settings = { update: settings }
+      if (location) data.location = { update: location }
+      if (contact) data.contact = { update: contact }
+      await prisma.member.update({ where: { id: parseInt(id) }, data })
+      return '' as any
+    } catch (error) {
+      console.log(error)
+    }
+    return true
+  }
+
+  private omitId(obj: any, foreignKey?: string) {
+    if (obj && typeof obj === 'object') {
+      if (foreignKey) {
+        const { [foreignKey]: _, id, ...rest } = obj
+        return rest;
+      } else {
+        const { id, ...rest } = obj
+        return rest
+      }
+    }
+    return obj;
   }
 }

@@ -1,8 +1,4 @@
-import { MemberModel } from '@adamsfoodservice/core-models'
-
-export type UpdateMemberModel = {
-  [Property in keyof MemberModel]?: MemberModel[Property] 
-} & { id: string}
+import { UpdateMemberModel } from '@adamsfoodservice/core-models'
 
 export interface UpdateMemberRepository {
   update (memberData: UpdateMemberModel): Promise<boolean>
