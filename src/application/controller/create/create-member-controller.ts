@@ -1,12 +1,12 @@
 import { CreateMemberRepository } from '@/data/domain/features/create-member-repository'
-import { Controller, HttpRequest, HttpResponse, ValidationType } from '../contract'
-import { badRequest, created } from '../helpers/http'
-import { MemberAlreadyExistsError } from '../errors'
-import { SerializeErrors } from '../contract/validation'
+import { Controller, HttpRequest, HttpResponse, ValidationType } from '@/application/contract'
+import { badRequest, created } from '@/application/helpers/http'
+import { MemberAlreadyExistsError } from '@/application/errors'
+import { SerializeErrors } from '@/application/contract/validation'
 import { ValidatorComposite } from '@/validator'
 import { BuilderValidator } from '@/validator/build-validator'
 import { FormatMemberData } from '@/data/services'
-import { CreateMemberModelFactory } from '../utils/create-member-model-factory'
+import { CreateMemberModelFactory } from '@/application/utils/create-member-model-factory'
 
 
 export class CreateMemberController extends Controller<any, any> {

@@ -4,7 +4,7 @@ import { LoadByUserAccountIdRepository, UpdateMemberRepository } from '@/data/do
 import { UpdateMemberSettings } from '@/data/domain/features/update/update-member-settings';
 
 export class UpdateMemberSettingsNotification implements UpdateMemberSettings {
-  constructor (private readonly pgMemberRepository: LoadByUserAccountIdRepository & UpdateMemberRepository) {}
+  constructor(private readonly pgMemberRepository: LoadByUserAccountIdRepository & UpdateMemberRepository) { }
   async update(param: UpdateMemberSettings.Params): Promise<boolean> {
     const currentUser = storage.currentUser.get() as any
     if (!currentUser.id) throw new Error()
@@ -12,15 +12,24 @@ export class UpdateMemberSettingsNotification implements UpdateMemberSettings {
     if (!member) throw new RecordNotFoundError('member', ' id', currentUser.id)
     const { flag, type } = param.config
     const settings: any = member.settings
-    if (type === UpdateMemberSettings.Types.transactional) {
-      if (param.resource === UpdateMemberSettings.Resource.email) settings.transactional_email = flag
-      if (param.resource === UpdateMemberSettings.Resource.push) settings.transactional_push = flag
-      if (param.resource === UpdateMemberSettings.Resource.sms) settings.transactional_sms = flag
-    } else {
-      if (param.resource === UpdateMemberSettings.Resource.email) settings.marketing_email = flag
-      if (param.resource === UpdateMemberSettings.Resource.push) settings.marketing_push = flag
-      if (param.resource === UpdateMemberSettings.Resource.sms) settings.marketing_sms = flag
+    switch (type) {
+      case UpdateMemberSettings.Types.transactional: {
+        if (param.resource === UpdateMemberSettings.Resource.email) settings.transactional_email = flag
+        if (param.resource === UpdateMemberSettings.Resource.push) settings.transactional_push = flag
+        if (param.resource === UpdateMemberSettings.Resource.sms) settings.transactional_sms = flag
+        break
+      }
+      case UpdateMemberSettings.Types.marketing: {
+        if (param.resource === UpdateMemberSettings.Resource.email) settings.marketing_email = flag
+        if (param.resource === UpdateMemberSettings.Resource.push) settings.marketing_push = flag
+        if (param.resource === UpdateMemberSettings.Resource.sms) settings.marketing_sms = flag
+        break
+      }
+      case UpdateMemberSettings.Types.general: {
+        if (param.resource === UpdateMemberSettings.Resource.pushAsked) settings.push_asked = flag
+      }
     }
+
     await this.pgMemberRepository.update({ ...member, settings })
     return true
   }

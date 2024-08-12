@@ -1,7 +1,0 @@
-export * from './create-member-controller'
-export * from './update/settings/update-member-settings-controller'
-export * from './load-member-by-internal-id-controller'
-export * from './update/settings/update-member-settings-controller'
-export * from './update/settings/update-sms-settings-controller-adapter'
-export * from './update/settings/update-push-settings-controller-adapter'
-export * from './update/update-member-controller'

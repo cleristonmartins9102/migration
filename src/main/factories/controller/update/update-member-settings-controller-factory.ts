@@ -1,5 +1,5 @@
 import { updateMemberSettingsNotificationFactory } from '../../data/features/update/update-member-settings-use-case';
-import { UpdateMemberSettingsController } from '@/application/controller';
+import { UpdateMemberSettingsController } from '@/application/controller/update';
 
 export const updateMemberSettingsControllerFactory = (): UpdateMemberSettingsController => {
   const updateMemberSettingsNotification = updateMemberSettingsNotificationFactory()

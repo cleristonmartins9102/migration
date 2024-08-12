@@ -1,6 +1,6 @@
 import { AcceptMember } from '@/data/domain/features';
-import { Controller, HttpRequest, HttpResponse } from '../contract';
-import { badRequest, ok } from '../helpers/http';
+import { Controller, HttpRequest, HttpResponse } from '@/application/contract';
+import { badRequest, ok } from '@/application/helpers/http';
 
 type InputBody = {
   id: string

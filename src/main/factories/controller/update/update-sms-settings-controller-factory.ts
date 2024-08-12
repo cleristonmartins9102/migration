@@ -1,4 +1,4 @@
-import { UpdateSmsSettingsControllerAdapter } from '@/application/controller';
+import { UpdateSmsSettingsControllerAdapter } from '@/application/controller/update';
 import { updateMemberSettingsControllerFactory } from './update-member-settings-controller-factory';
 
 export const updateSmsSettingsControllerAdapterFactory = (): UpdateSmsSettingsControllerAdapter => {

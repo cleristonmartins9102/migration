@@ -15,7 +15,7 @@ export class PgMemberRepository implements Contracts {
     if (memberExists) throw new MemberAlreadyExistsError(memberData.user_account_id)
     const { wallet, location, settings, shop, contact, payroll_number, ...onlyMemberData } = memberData as CreateMemberHouseHold & CreateMemberShop
     const memberPrismaResponse = await prisma.$transaction(async prisma => {
-      const memberPrismaResponse = await prisma.member.create({ data: onlyMemberData as any })
+      const memberPrismaResponse = await prisma.member.create({ data: { ...onlyMemberData, internal_id: Math.floor(100000 + Math.random() * 900000).toString() } as any })
       await prisma.contact.create({ data: { ...contact, member: { connect: { id: memberPrismaResponse.id } } } })
       await prisma.location.create({ data: { ...location, member: { connect: { id: memberPrismaResponse.id } } } })
       const deliveryDays = []
@@ -49,7 +49,6 @@ export class PgMemberRepository implements Contracts {
       return memberPrismaResponse
     })
 
-
     const memberModel: MemberModel = {
       id: memberPrismaResponse.id.toString(),
       ...memberData,
@@ -74,7 +73,7 @@ export class PgMemberRepository implements Contracts {
           memberhousehould: true,
         },
       })
-      
+
     if (!prismaResponse) return null
     const memberModel = {
       id: prismaResponse.id.toString(),
@@ -115,7 +114,7 @@ export class PgMemberRepository implements Contracts {
           memberhousehould: true,
         },
       })
-      
+
     if (!prismaResponse) return null
     const memberModel = {
       id: prismaResponse.id.toString(),
@@ -184,7 +183,7 @@ export class PgMemberRepository implements Contracts {
   }
 
   async update(memberData: UpdateMemberModel): Promise<boolean> {
-    const { id, wallet, settings, location, shop, contact, payroll_number,...withoutId } = memberData
+    const { id, wallet, settings, location, shop, contact, payroll_number, ...withoutId } = memberData
     const prisma = new PrismaClient();
     try {
       const data: any = withoutId
@@ -197,7 +196,7 @@ export class PgMemberRepository implements Contracts {
       if (settings) data.settings = { update: settings }
       if (location) data.location = { update: location }
       if (contact) data.contact = { update: contact }
-      await prisma.member.update({ where: { id: parseInt(id) }, data })
+      await prisma.member.update({ where: { id: parseInt(id as any) }, data })
       return '' as any
     } catch (error) {
       console.log(error)

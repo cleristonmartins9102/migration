@@ -12,5 +12,5 @@ const fakeAuthMiddleware = (req: any, res: any, next: any): void => {
 }
 
 export const createMemberRouter = (router: Router): void => {
-  router.put('/create', fakeAuthMiddleware, expressAdapter(createMemberControllerFactory()))
+  router.post('/', fakeAuthMiddleware, expressAdapter(createMemberControllerFactory()))
 }

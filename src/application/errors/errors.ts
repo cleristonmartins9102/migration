@@ -17,6 +17,14 @@ export class MemberAlreadyExistsError extends CustomError {
     this.name = 'MemberAlreadyExistsError'
   }
 }
+
+
+export class PrismaError extends CustomError {
+  constructor (error: Error) {
+    super(error.message)
+    this.name = 'PrismaError'
+  }
+}
 export class IsNotObjectError extends CustomError {
   constructor (parameterName: string) {
     super('the parameter is not an object')

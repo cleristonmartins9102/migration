@@ -1,4 +1,4 @@
-import { LoadMemberByInternalIdController } from '@/application/controller';
+import { LoadMemberByInternalIdController } from '@/application/controller/load';
 import { PgMemberRepository } from '@/infra/repository/pg-member-repository';
 
 export const loadMemberByInternalIdControllerFactory = (): LoadMemberByInternalIdController => {

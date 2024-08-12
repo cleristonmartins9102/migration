@@ -1,4 +1,4 @@
-import { AcceptMemberController } from '@/application/controller/accept-member-controller';
+import { AcceptMemberController } from '@/application/controller/accept/accept-member-controller';
 import { acceptMemberUseCaseFactory } from '../data/features';
 
 export const acceptMemberControllerFactory = (): AcceptMemberController => {

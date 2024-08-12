@@ -60,7 +60,7 @@
   "dependencies": {
     "@adamsfoodservice/core-models": "^1.0.67",
     "@adamsfoodservice/shared-middleware": "^1.0.54",
-    "@adamsfoodservice/shared-modules": "^1.0.261",
+    "@adamsfoodservice/shared-modules": "^1.0.269",
     "@apollo/server": "^4.10.5",
     "@prisma/client": "^5.17.0",
     "@redis/client": "^1.5.17",

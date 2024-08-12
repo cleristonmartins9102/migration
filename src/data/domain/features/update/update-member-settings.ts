@@ -13,12 +13,14 @@ export namespace UpdateMemberSettings {
 
   export enum Types {
     transactional = 'transactional',
-    marketing = 'marketing'
+    marketing = 'marketing',
+    general = 'general'
   }
 
   export enum Resource {
     sms = 'sms',
     email = 'email',
-    push = 'push'
+    push = 'push',
+    pushAsked = 'push_asked'
   }
 }

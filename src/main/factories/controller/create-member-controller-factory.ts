@@ -1,4 +1,4 @@
-import { CreateMemberController } from '@/application/controller';
+import { CreateMemberController } from '@/application/controller/create';
 import { formatMemberDataService } from '@/data/services';
 import { PgMemberRepository } from '@/infra/repository/pg-member-repository';
 

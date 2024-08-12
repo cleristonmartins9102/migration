@@ -1,4 +1,4 @@
-import { UpdatePushSettingsControllerAdapter } from '@/application/controller';
+import { UpdatePushSettingsControllerAdapter } from '@/application/controller/update';
 import { updateMemberSettingsControllerFactory } from './update-member-settings-controller-factory';
 
 export const updatePushSettingsControllerAdapterFactory = (): UpdatePushSettingsControllerAdapter => {
