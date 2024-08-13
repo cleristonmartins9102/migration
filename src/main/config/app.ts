@@ -11,6 +11,7 @@ const app = express()
 
 export const createApp = async (): Promise<Express> => {
   app.use(cors())
+  app.use(express.urlencoded({ extended: true }))
   app.use(jsonMiddleware(app))
   await setupRouters(app)
   setupSwagger(app)

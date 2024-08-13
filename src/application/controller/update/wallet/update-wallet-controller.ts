@@ -10,11 +10,11 @@ type InputBody = {
   balance: number
 }
 export class UpdateWalletController extends Controller<any, any> {
-  constructor (private readonly pgMemberRepository: UpdateWalletBalanceRepository) {super()}
+  constructor (private readonly pgWalletRepository: UpdateWalletBalanceRepository) {super()}
   async perform(httpRequest: HttpRequest<InputBody, unknown>): Promise<HttpResponse<any>> {
     const { body } = httpRequest
     if (!body) return badRequest('body')
-    const pgMemberResponse = await this.pgMemberRepository.updateBalance(body)
+    const pgMemberResponse = await this.pgWalletRepository.updateBalance(body)
     return ok(pgMemberResponse)
   }
 

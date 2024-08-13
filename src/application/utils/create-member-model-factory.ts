@@ -1,5 +1,5 @@
-import { CreateMemberController } from '../controller/create-member-controller';
 import { CreateMemberHouseHold, CreateMemberModel, CreateMemberShop } from '@/data/domain/models'
+import { CreateMemberController } from '../controller/create'
 
 export class CreateMemberModelFactory {
   static factory(body: CreateMemberController.Input): CreateMemberModel {

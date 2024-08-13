@@ -1,7 +1,7 @@
 import { Router, Express } from 'express'
 import { createMemberRouter, deleteMemberRouter, acceptMemberRouter, loadMemberByInternalIdRouter, updateMemberRouter } from '../routers'
 import { updateMemberSettingsRouter } from '../routers/update/update-member-settings-router'
-import { updateWalletBalanceRouter } from '../routers/update/wallet/update-wallet-balance-router'
+import { updateWalletBalanceFromErpDataRouter } from '../routers/update/wallet/update-wallet-balance-from-erp-data-router'
 
 export const setupRouters = async (app: Express): Promise<void> => {
   const router = Router()
@@ -12,5 +12,5 @@ export const setupRouters = async (app: Express): Promise<void> => {
   acceptMemberRouter(router)
   deleteMemberRouter(router)
   updateMemberSettingsRouter(router)
-  updateWalletBalanceRouter(router)
+  updateWalletBalanceFromErpDataRouter(router)
 }
