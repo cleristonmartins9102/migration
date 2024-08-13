@@ -6,8 +6,19 @@ import sm from '@adamsfoodservice/shared-modules'
 import { MemberAlreadyExistsError } from '@/application/errors';
 import { LoadByIdRepository, LoadByInternalIdRepository, LoadByUserAccountIdRepository, UpdateMemberRepository } from '@/data/domain/features';
 import { DeleteMemberRepository } from '@/data/domain/features/delete/delete-member-repository';
+import { LoadAllRepository, LoadByPhoneNumberRepository, LoadUserWalletRepository } from '@/data/domain/features/load';
+import { Wallet } from '@adamsfoodservice/core-models/dist/types/models/general';
+import { storage } from '@/application/storage/storage';
 
-type Contracts = CreateMemberRepository & LoadByIdRepository & UpdateMemberRepository & LoadByInternalIdRepository & LoadByUserAccountIdRepository & DeleteMemberRepository
+type Contracts = CreateMemberRepository 
+& LoadByIdRepository 
+& UpdateMemberRepository 
+& LoadByInternalIdRepository 
+& LoadByUserAccountIdRepository 
+& DeleteMemberRepository 
+& LoadByPhoneNumberRepository 
+& LoadAllRepository
+& LoadUserWalletRepository
 export class PgMemberRepository implements Contracts {
   async create(memberData: CreateMemberHouseHold | CreateMemberShop): Promise<MemberModel> {
     const prisma = new PrismaClient();
@@ -100,6 +111,51 @@ export class PgMemberRepository implements Contracts {
     return memberModel
   }
 
+  async loadAll(): Promise<MemberModel[]> {
+    const prisma = new PrismaClient();
+    const prismaResponse: any = await prisma.member.findMany(
+      {
+        include: {
+          location: true,
+          contact: true,
+          wallet: true,
+          settings: true,
+          membershop: true,
+          memberhousehould: true,
+        },
+      })
+
+    if (!prismaResponse) return []
+    const response = []
+    for (const member of prismaResponse) {
+      const memberModel = {
+        id: member.id.toString(),
+        user_account_id: member.user_account_id,
+        first_name: member.first_name,
+        last_name: member.last_name,
+        customer_type: member.customer_type,
+        disabled: member.disabled,
+        email_verified: member.email_verified,
+        internal_id: member.internal_id,
+        invoiced_by: member.invoiced_by,
+        payroll_number: parseInt(member.payroll_number as any),
+        role: member.role,
+        branch: member.branch as any,
+        wallet: this.omitId(member.wallet, 'memberId'),
+        location: this.omitId(member.location, 'memberId'),
+        shop: this.omitId(member.shop, 'memberId'),
+        settings: this.omitId(member.settings, 'memberId') as any,
+        contact: this.omitId(member.contact, 'memberId'),
+        web_parent: member.web_parent as any,
+        updated_at: new sm.DateTime.MomentAdapter(member.created_at),
+        created_at: new sm.DateTime.MomentAdapter(member.updated_at)
+      }
+      response.push(memberModel)
+    }
+    
+    return response
+  }
+
   async loadByUserAccountId(userAccountId: string): Promise<MemberModel | null> {
     const prisma = new PrismaClient();
     const prismaResponse: any = await prisma.member.findUnique(
@@ -141,11 +197,77 @@ export class PgMemberRepository implements Contracts {
     return memberModel
   }
 
+  async loadWallet (userId?: string): Promise<Wallet | null> {
+    const prisma = new PrismaClient();
+    const user_account_id = (storage.currentUser.get() as any).id
+    const prismaResponse: any = await prisma.member.findUnique(
+      {
+        where: { user_account_id },
+        include: {
+          location: true,
+          contact: true,
+          wallet: true,
+          settings: true,
+          membershop: true,
+          memberhousehould: true,
+        },
+      })
+
+    if (!prismaResponse) return null
+    const walletModel: Wallet = {
+      balance: prismaResponse.wallet.balance
+    }
+    return walletModel
+  }
+
   async loadByInternalId(internal_id: string): Promise<MemberModel | null> {
     const prisma = new PrismaClient();
     const prismaResponse: any = await prisma.member.findUnique({
       where: {
         internal_id,
+      },
+      include: {
+        memberhousehould: true,
+        membershop: true,
+        location: true,
+        contact: true,
+        settings: true,
+        wallet: true,
+      }
+    })
+    if (!prismaResponse) return null
+    const memberModel = {
+      id: prismaResponse.id.toString(),
+      user_account_id: prismaResponse.user_account_id,
+      first_name: prismaResponse.first_name,
+      last_name: prismaResponse.last_name,
+      customer_type: prismaResponse.customer_type,
+      disabled: prismaResponse.disabled,
+      email_verified: prismaResponse.email_verified,
+      internal_id: prismaResponse.internal_id,
+      invoiced_by: prismaResponse.invoiced_by,
+      payroll_number: parseInt(prismaResponse.payroll_number as any),
+      role: prismaResponse.role,
+      branch: prismaResponse.branch as any,
+      wallet: prismaResponse.wallet as any,
+      location: prismaResponse.location as any,
+      shop: prismaResponse.shop as any,
+      settings: prismaResponse.settings as any,
+      contact: prismaResponse.contact as any,
+      web_parent: prismaResponse.web_parent as any,
+      updated_at: new sm.DateTime.MomentAdapter(prismaResponse.created_at),
+      created_at: new sm.DateTime.MomentAdapter(prismaResponse.updated_at)
+    }
+    return memberModel
+  }
+
+  async loadByPhoneNumber(phoneNumber: string): Promise<MemberModel | null> {
+    const prisma = new PrismaClient();
+    const prismaResponse: any = await prisma.member.findFirst({
+      where: {
+        contact: {
+          phone_number: phoneNumber
+        }
       },
       include: {
         memberhousehould: true,
