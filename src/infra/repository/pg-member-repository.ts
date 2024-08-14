@@ -311,7 +311,7 @@ export class PgMemberRepository implements Contracts {
   }
 
   async update(memberData: UpdateMemberModel): Promise<boolean> {
-    const { id, wallet, settings, location, shop, contact, payroll_number, ...withoutId } = memberData
+    const { id, wallet, settings, location, shop, contact, payroll_number, updatedFields, ...withoutId } = memberData as any
     const prisma = new PrismaClient();
     try {
       const data: any = withoutId

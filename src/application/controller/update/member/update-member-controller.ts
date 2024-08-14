@@ -8,6 +8,7 @@ import sm from '@adamsfoodservice/shared-modules'
 import { BuilderValidator } from '@/validator/build-validator';
 import { AllowedContentTypesValidator } from '@/validator/allowed-content-types-validator';
 import { ContentTypes } from '@/application/enum/content-types-enum';
+import { storage } from '@/application/storage/storage';
 
 type InputBody = UpdateMemberModel & { file: string }
 export class UpdateMemberController extends Controller<any, any> {
@@ -19,20 +20,19 @@ export class UpdateMemberController extends Controller<any, any> {
       const validator = new AllowedContentTypesValidator([ContentTypes.Json, ContentTypes.Urlencoded])
       const error = await validator.validate(contentType as string)
       if (error) return badRequest(error.message)
-      if (contentType === ContentTypes.Urlencoded) {
+      if (contentType === ContentTypes.Urlencoded) { // Update by system
         const validator = new RequiredParameterValidator('file')
         const error = await validator.validate(body)
         if (error) return badRequest(error)
         const { translatedData } = sm.Translate.translateErpDataToApiModel().translate(body.file)
         if (translatedData.length === 0) return ok(false)
-        await this.dbUpdateMember.update(translatedData[0] as any)
-      } else {
-        const validator = new ValidatorComposite([...BuilderValidator.of(['id', 'internal_id']).requiredAny().build()])
-        const error = await validator.validate(body)
-        if (error) return badRequest(error)
-        await this.dbUpdateMember.update(body as UpdateMemberModel)
+        return ok(await this.dbUpdateMember.update(translatedData[0] as any))
+      } else { // Update by user
+        if (!body.internal_id) {
+          body.user_account_id = (storage.currentUser.get() as any).id
+        }
+        return ok(await this.dbUpdateMember.update(body as UpdateMemberModel))
       }
-      return ok(true)
     } catch (error) {
       if (error instanceof RecordNotFoundError) {
         return notFound(error.message)

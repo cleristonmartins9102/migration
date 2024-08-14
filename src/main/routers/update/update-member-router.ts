@@ -1,16 +1,11 @@
 import { Router } from 'express'
 import { expressAdapter } from '@/main/adapters'
-import sm from '@adamsfoodservice/shared-modules'
+import path from 'path'
 import { storage } from '@/application/storage/storage'
 import { updateMemberControllerFactory } from '@/main/factories/controller/update-member-controller-factory'
-
-const fakeAuthMiddleware = (req: any, res: any, next: any): void => {
-  new sm.Hooks.AsyncScope(() => {
-    storage.currentUser.set<{email: string}>({ email: 'john@gmail.com' })
-    next()
-  })
-}
+import { Middleware } from '@adamsfoodservice/shared-middleware'
 
 export const updateMemberRouter = (router: Router): void => {
-  router.post('/update', fakeAuthMiddleware, expressAdapter(updateMemberControllerFactory()))
+  const authMiddleware = Middleware.userAuth(path.join(__dirname, '../../../../credentials.json'), storage.currentUser)
+  router.post('/update', authMiddleware, expressAdapter(updateMemberControllerFactory()))
 }

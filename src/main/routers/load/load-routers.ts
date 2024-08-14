@@ -9,17 +9,10 @@ import { loadAllMemberControllerFactory } from '@/main/factories/controller/load
 import { loadUserWalletControllerFactory } from '@/main/factories/controller/load/load-user-wallet-controller-factory'
 import { Middleware } from '@adamsfoodservice/shared-middleware'
 
-const fakeAuthMiddleware = (req: any, res: any, next: any): void => {
-  new sm.Hooks.AsyncScope(() => {
-    storage.currentUser.set<{email: string}>({ email: 'john@gmail.com' })
-    next()
-  })
-}
-
 export const loadRouters = (router: Router): void => {
   const authMiddleware = Middleware.userAuth(path.join(__dirname, '../../../../credentials.json'), storage.currentUser)
-  router.get('/load', fakeAuthMiddleware, expressAdapter(loadAllMemberControllerFactory()))
+  router.get('/load', authMiddleware, expressAdapter(loadAllMemberControllerFactory()))
   router.get('/wallet/load/balance', authMiddleware, expressAdapter(loadUserWalletControllerFactory()))
-  router.get('/load/internal_id/:id', fakeAuthMiddleware, expressAdapter(loadMemberByInternalIdControllerFactory()))
-  router.get('/load/phone-number/:phone_number', fakeAuthMiddleware, expressAdapter(loadMemberByPhoneNumberControllerFactory()))
+  router.get('/load/internal_id/:id', authMiddleware, expressAdapter(loadMemberByInternalIdControllerFactory()))
+  router.get('/load/phone-number/:phone_number', authMiddleware, expressAdapter(loadMemberByPhoneNumberControllerFactory()))
 }
