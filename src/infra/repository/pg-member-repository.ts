@@ -3,7 +3,7 @@ import { CreateMemberHouseHold, CreateMemberShop } from '@/data/domain/models';
 import { MemberModel, UpdateMemberModel } from '@adamsfoodservice/core-models';
 import { PrismaClient } from '@prisma/client';
 import sm from '@adamsfoodservice/shared-modules'
-import { MemberAlreadyExistsError } from '@/application/errors';
+import { MemberAlreadyExistsError, PrismaError } from '@/application/errors'
 import { LoadByIdRepository, LoadByInternalIdRepository, LoadByUserAccountIdRepository, UpdateMemberRepository } from '@/data/domain/features';
 import { DeleteMemberRepository } from '@/data/domain/features/delete/delete-member-repository';
 import { LoadAllRepository, LoadByPhoneNumberRepository, LoadUserWalletRepository } from '@/data/domain/features/load';
@@ -222,43 +222,49 @@ export class PgMemberRepository implements Contracts {
 
   async loadByInternalId(internal_id: string): Promise<MemberModel | null> {
     const prisma = new PrismaClient();
-    const prismaResponse: any = await prisma.member.findUnique({
-      where: {
-        internal_id,
-      },
-      include: {
-        memberhousehould: true,
-        membershop: true,
-        location: true,
-        contact: true,
-        settings: true,
-        wallet: true,
+    try {
+      const prismaResponse: any = await prisma.member.findUnique({
+        where: {
+          internal_id,
+        },
+        include: {
+          memberhousehould: true,
+          membershop: true,
+          location: true,
+          contact: true,
+          settings: true,
+          wallet: true,
+        }
+      })
+      if (!prismaResponse) return null
+      const memberModel = {
+        id: prismaResponse.id.toString(),
+        user_account_id: prismaResponse.user_account_id,
+        first_name: prismaResponse.first_name,
+        last_name: prismaResponse.last_name,
+        customer_type: prismaResponse.customer_type,
+        disabled: prismaResponse.disabled,
+        email_verified: prismaResponse.email_verified,
+        internal_id: prismaResponse.internal_id,
+        invoiced_by: prismaResponse.invoiced_by,
+        payroll_number: parseInt(prismaResponse.payroll_number as any),
+        role: prismaResponse.role,
+        branch: prismaResponse.branch as any,
+        wallet: prismaResponse.wallet as any,
+        location: prismaResponse.location as any,
+        shop: prismaResponse.shop as any,
+        settings: prismaResponse.settings as any,
+        contact: prismaResponse.contact as any,
+        web_parent: prismaResponse.web_parent as any,
+        updated_at: new sm.DateTime.MomentAdapter(prismaResponse.created_at),
+        created_at: new sm.DateTime.MomentAdapter(prismaResponse.updated_at)
       }
-    })
-    if (!prismaResponse) return null
-    const memberModel = {
-      id: prismaResponse.id.toString(),
-      user_account_id: prismaResponse.user_account_id,
-      first_name: prismaResponse.first_name,
-      last_name: prismaResponse.last_name,
-      customer_type: prismaResponse.customer_type,
-      disabled: prismaResponse.disabled,
-      email_verified: prismaResponse.email_verified,
-      internal_id: prismaResponse.internal_id,
-      invoiced_by: prismaResponse.invoiced_by,
-      payroll_number: parseInt(prismaResponse.payroll_number as any),
-      role: prismaResponse.role,
-      branch: prismaResponse.branch as any,
-      wallet: prismaResponse.wallet as any,
-      location: prismaResponse.location as any,
-      shop: prismaResponse.shop as any,
-      settings: prismaResponse.settings as any,
-      contact: prismaResponse.contact as any,
-      web_parent: prismaResponse.web_parent as any,
-      updated_at: new sm.DateTime.MomentAdapter(prismaResponse.created_at),
-      created_at: new sm.DateTime.MomentAdapter(prismaResponse.updated_at)
+      return memberModel
+    } catch (error) {
+      if (error instanceof Error)
+      throw new PrismaError(error)
     }
-    return memberModel
+    return null
   }
 
   async loadByPhoneNumber(phoneNumber: string): Promise<MemberModel | null> {
@@ -312,16 +318,17 @@ export class PgMemberRepository implements Contracts {
       if (payroll_number) data.memberhouse = { update: { payroll_number } }
       if (shop) data.shop = { update: shop }
       if (wallet) {
-        delete (wallet as any).id
-        data.wallet = { update: wallet }
+        data.wallet = { update: this.omitMemberId(wallet) }
       }
-      if (settings) data.settings = { update: settings }
-      if (location) data.location = { update: location }
-      if (contact) data.contact = { update: contact }
+      if (settings) data.settings = { update: this.omitMemberId(settings) }
+      if (location) data.location = { update: this.omitMemberId(location) }
+      if (contact) data.contact = { update: this.omitMemberId(contact) }
       await prisma.member.update({ where: { id: parseInt(id as any) }, data })
       return '' as any
     } catch (error) {
-      console.log(error)
+      if (error instanceof Error)
+      console.log(error.message)
+      throw new PrismaError(error as any)
     }
     return true
   }
@@ -332,6 +339,18 @@ export class PgMemberRepository implements Contracts {
     return true
   }
 
+  private omitMemberId(obj: any, foreignKey?: string) {
+    if (obj && typeof obj === 'object') {
+      if (foreignKey) {
+        const { [foreignKey]: _, id, ...rest } = obj
+        return rest;
+      } else {
+        const { memberId, ...rest } = obj
+        return rest
+      }
+    }
+    return obj;
+  }
   private omitId(obj: any, foreignKey?: string) {
     if (obj && typeof obj === 'object') {
       if (foreignKey) {

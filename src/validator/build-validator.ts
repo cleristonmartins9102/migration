@@ -6,12 +6,18 @@ import { IsNumberValidator } from './is-number-validator'
 import { IsObjectValidator } from './is-object-validator'
 import { IsStringValidator } from './is-string-validator'
 import { MinValidate } from './min-validate'
+import { RequiredAnyParameterValidator } from './required-any-parameted-validator'
 import { RequiredParameterValidator } from './required-parameter-validator'
 import { Validation } from '@/application/contract/validation'
 
 export class BuilderValidator {
   private readonly validators: Validation [] = []
-  constructor (private readonly paramName: string) {}
+  constructor (private readonly paramName: any) {}
+
+  requiredAny(): this {
+    this.validators.push(new RequiredAnyParameterValidator(this.paramName))
+    return this
+  }
 
   required (): this {
     let alreadyAddedBefore = false
@@ -70,7 +76,7 @@ export class BuilderValidator {
     return this
   }
 
-  static of (paramName: string): BuilderValidator {
+  static of (paramName: string | string[]): BuilderValidator {
     return new BuilderValidator(paramName)
   }
 

@@ -19,7 +19,7 @@ const fakeAuthMiddleware = (req: any, res: any, next: any): void => {
 export const loadRouters = (router: Router): void => {
   const authMiddleware = Middleware.userAuth(path.join(__dirname, '../../../../credentials.json'), storage.currentUser)
   router.get('/load', fakeAuthMiddleware, expressAdapter(loadAllMemberControllerFactory()))
-  router.get('/load/wallet/balance', authMiddleware, expressAdapter(loadUserWalletControllerFactory()))
+  router.get('/wallet/load/balance', authMiddleware, expressAdapter(loadUserWalletControllerFactory()))
   router.get('/load/internal_id/:id', fakeAuthMiddleware, expressAdapter(loadMemberByInternalIdControllerFactory()))
   router.get('/load/phone-number/:phone_number', fakeAuthMiddleware, expressAdapter(loadMemberByPhoneNumberControllerFactory()))
 }

@@ -9,4 +9,5 @@ export interface HttpRequest<B = unknown, P = unknown> {
   body?: B
   params?: P
   query?: unknown
+  contentType?: string
 }

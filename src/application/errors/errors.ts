@@ -84,6 +84,12 @@ export class RequiredParameterdError extends CustomError {
     this.name = 'RequiredParameterError'
   }
 }
+export class InvalidContentTypeError extends CustomError {
+  constructor (allowedContentTypes: string[]) {
+    super(`invalid content type error - ${allowedContentTypes.join(' or ')}`)
+    this.name = 'InvalidContentTypeError'
+  }
+}
 
 export class UnauthorizedError extends CustomError {
   constructor () {
