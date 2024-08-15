@@ -1,5 +1,5 @@
 import { RecordNotFoundError } from '@/application/errors';
-import { AcceptMember, LoadByIdRepository, UpdateMemberRepository } from '../domain/features';
+import { AcceptMember, LoadByIdRepository, UpdateMemberRepository } from '@/data/domain/features';
 
 export class AcceptMemberUseCase implements AcceptMember {
   constructor (private readonly pgMemberRepository: LoadByIdRepository & UpdateMemberRepository) {}

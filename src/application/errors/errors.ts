@@ -17,6 +17,12 @@ export class MemberAlreadyExistsError extends CustomError {
     this.name = 'MemberAlreadyExistsError'
   }
 }
+export class FcmTokenAlreadyExistsError extends CustomError {
+  constructor (fcmToken: string) {
+    super(`fcm token already exists - ${fcmToken}`)
+    this.name = 'FcmTokenAlreadyExistsError'
+  }
+}
 
 
 export class PrismaError extends CustomError {
