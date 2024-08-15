@@ -1,5 +1,5 @@
 import { UpdateMemberController } from '@/application/controller/update/member/update-member-controller';
-import { updateMemberWithFlexibleParamsFactory } from '../data/features/update/update-member-with-flexible-params';
+import { updateMemberWithFlexibleParamsFactory } from '@/main/factories/data/features/update/update-member-with-flexible-params';
 
 export const updateMemberControllerFactory = (): UpdateMemberController => {
   const dbUpdateMember = updateMemberWithFlexibleParamsFactory()
