@@ -4,7 +4,7 @@ export interface DeleteMember {
 
 export namespace DeleteMember {
   export type InputData = {
-    id?: string
+    userAccountId?: string
     internal_id?: string
   }
 }

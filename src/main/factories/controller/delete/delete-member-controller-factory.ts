@@ -1,8 +1,8 @@
 import { DeleteMemberController } from '@/application/controller/delete/delete-member-controller';
-import { dbDeleteMemberFactory } from '../../data/features/delete/db-delete-member-factory'
+import { deleteMemberWithFlexibleParamsFactory } from '../../data/features/delete';
 
 export const deleteMemberControllerFactory = (): DeleteMemberController => {
-  const dbDeleteMember = dbDeleteMemberFactory()
-  const deleteMemberController = new DeleteMemberController(dbDeleteMember)
+  const deleteMemberWithFlexibleParams = deleteMemberWithFlexibleParamsFactory()
+  const deleteMemberController = new DeleteMemberController(deleteMemberWithFlexibleParams)
   return deleteMemberController
 }

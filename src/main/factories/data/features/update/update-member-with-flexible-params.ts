@@ -1,4 +1,4 @@
-import { UpdateMemberWithFlexibleParams } from '@/data/features/update/update-member-with-fleixibile-params';
+import { UpdateMemberWithFlexibleParams } from '@/data/features/update/update-member-with-flexibile-params';
 import { PgMemberRepository } from '@/infra/repository/pg-member-repository';
 
 export const updateMemberWithFlexibleParamsFactory = (): UpdateMemberWithFlexibleParams => {
