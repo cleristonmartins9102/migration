@@ -10,5 +10,5 @@ export const createMemberRouter = (router: Router): void => {
   const permissionPath = path.join(__dirname, '../../../../credentials.json')
   const userAuth = Middleware.userAuth(permissionPath, storage.currentUser)
   router.post('/add-fcm-token', userAuth, expressAdapter(addFcmTokenControllerFactory()))
-  router.post('/', expressAdapter(createMemberControllerFactory()))
+  router.put('/create', expressAdapter(createMemberControllerFactory()))
 }

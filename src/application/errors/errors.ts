@@ -76,6 +76,14 @@ export class IsNotNanError extends CustomError {
   }
 }
 
+export class WrongProvidedEmailError extends CustomError {
+  constructor (email: string) {
+    super(`wrong provided email - ${email}`)
+    this.parameterName = 'email'
+    this.name = 'WrongProvidedEmailError'
+  }
+}
+
 export class UserAlreadyExistsError extends CustomError {
   constructor (email: string) {
     super(`the user already exists ${email}`)
