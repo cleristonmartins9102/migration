@@ -2,13 +2,15 @@ import { CreateMemberRepository } from '@/data/domain/features/create-member-rep
 import { CreateMemberHouseHold, CreateMemberShop } from '@/data/domain/models';
 import { MemberModel, UpdateMemberModel } from '@adamsfoodservice/core-models';
 import { PrismaClient } from '@prisma/client';
-import sm from '@adamsfoodservice/shared-modules'
+import sm, { SQL } from '@adamsfoodservice/shared-modules'
 import { MemberAlreadyExistsError, PrismaError } from '@/application/errors'
 import { LoadByIdRepository, LoadByInternalIdRepository, LoadByUserAccountIdRepository, UpdateMemberRepository } from '@/data/domain/features';
 import { DeleteMemberRepository } from '@/data/domain/features/delete/delete-member-repository';
 import { LoadAllRepository, LoadByEmailRepository, LoadByInternalIdBatchRepository, LoadByPhoneNumberRepository, LoadUserWalletRepository } from '@/data/domain/features/load';
 import { Wallet } from '@adamsfoodservice/core-models/dist/types/models/general';
 import { storage } from '@/application/storage/storage';
+import { LoadWithCriteriaRepository } from '@/data/domain/features/load/load-with-criteria-repository';
+import { Contracts } from '@adamsfoodservice/shared-modules'
 
 type Contracts = CreateMemberRepository 
 & LoadByIdRepository 
@@ -21,6 +23,7 @@ type Contracts = CreateMemberRepository
 & LoadUserWalletRepository
 & LoadByEmailRepository
 & LoadByInternalIdBatchRepository
+& LoadWithCriteriaRepository
 export class PgMemberRepository implements Contracts {
   async create(memberData: CreateMemberHouseHold | CreateMemberShop): Promise<MemberModel> {
     const prisma = new PrismaClient();
@@ -198,6 +201,60 @@ export class PgMemberRepository implements Contracts {
     }
     
     return response
+  }
+
+  async loadWithCriteria(criteria: Contracts.Expression): Promise<MemberModel[]> {
+    const prisma = new PrismaClient();
+    const dump: any = criteria.dump(SQL.Criteria.DataSourceType.Prisma)
+    try {
+      const prismaResponse: any = await prisma.member.findMany(
+        {      
+          where: dump,
+          include: {
+            location: true,
+            contact: true,
+            wallet: true,
+            settings: true,
+            membershop: true,
+            memberhousehould: true,
+          },
+        })
+      if (!prismaResponse) return []
+      const response = []
+      for (const member of prismaResponse) {
+        const memberModel = {
+          id: member.id.toString(),
+          user_account_id: member.user_account_id,
+          first_name: member.first_name,
+          last_name: member.last_name,
+          customer_type: member.customer_type,
+          disabled: member.disabled,
+          email_verified: member.email_verified,
+          internal_id: member.internal_id,
+          invoiced_by: member.invoiced_by,
+          payroll_number: parseInt(member.payroll_number as any),
+          role: member.role,
+          branch: member.branch as any,
+          wallet: this.omitId(member.wallet, 'memberId'),
+          location: this.omitId(member.location, 'memberId'),
+          shop: this.omitId(member.shop, 'memberId'),
+          settings: this.omitId(member.settings, 'memberId') as any,
+          contact: this.omitId(member.contact, 'memberId'),
+          web_parent: member.web_parent as any,
+          updated_at: new sm.DateTime.MomentAdapter(member.created_at),
+          created_at: new sm.DateTime.MomentAdapter(member.updated_at)
+        }
+        response.push(memberModel)
+      }
+      return response
+
+    } catch (error) {
+      if (error instanceof Error)
+      if (error.name === 'PrismaClientValidationError') {
+        return []
+      }
+    }
+    return []
   }
 
   async loadByInternalIdBatch(internalIdBatch: string[]): Promise<MemberModel[]> {
