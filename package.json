@@ -1,5 +1,5 @@
 {
-  "name": "afsservice-scaffolding",
+  "name": "afs-member-service",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
