@@ -6,9 +6,8 @@ COPY .npmrc ./
 COPY .env.* ./
 
 RUN mkdir source
-COPY tsconfig.json ./source
+COPY tsconfig*.json ./source
 COPY package.json ./source
-COPY tsconfig.build.json ./source
 
 COPY src ./source/src
 COPY ./.npmrc ./source
