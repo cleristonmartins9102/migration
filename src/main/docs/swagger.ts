@@ -25,7 +25,7 @@ export const setupSwagger = (app: Express): void => {
 
       }
     },
-    apis: ['./src/main/routers/**/*.ts'] // Ensure this points to your route files
+    apis: ['./src/main/routers/**/*.{js,ts}'] // Ensure this points to your route files
   }
 
   const swaggerDocs = swaggerJsDoc(swaggerOptions)
