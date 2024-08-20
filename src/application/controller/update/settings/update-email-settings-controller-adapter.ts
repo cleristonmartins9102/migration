@@ -7,7 +7,6 @@ import { UpdateMemberSettings } from '@/data/domain/features/update/update-membe
 import { badRequest } from '@/application/helpers/http';
 
 type InputBody = {
-  id: string
   data: {
     flag: boolean
     type: string

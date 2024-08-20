@@ -2,13 +2,14 @@ import swaggerUi from 'swagger-ui-express'
 import swaggerJsDoc from 'swagger-jsdoc'
 import { Express } from 'express'
 import { notFound, badRequest, serverError, unauthorized, errorSchema } from './components'
+import { memberResponseSchema } from './schema/member/member-schema'
 
 export const setupSwagger = (app: Express): void => {
   const swaggerOptions = {
     definition: {
       openapi: '3.0.0',
       info: {
-        title: 'Scaffolding Account API',
+        title: 'Member Service API',
         version: '1.0.0',
         description: 'Documentation detailing API specifications'
       },
@@ -18,12 +19,13 @@ export const setupSwagger = (app: Express): void => {
           Error: errorSchema,
           BadRequest: badRequest,
           ServerError: serverError,
-          Unauthorized: unauthorized
+          Unauthorized: unauthorized,
+          memberResponseSchema
         }
 
       }
     },
-    apis: ['./src/main/routers/*.ts'] // Ensure this points to your route files
+    apis: ['./src/main/routers/**/*.ts'] // Ensure this points to your route files
   }
 
   const swaggerDocs = swaggerJsDoc(swaggerOptions)
