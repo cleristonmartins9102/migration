@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.serverError = exports.notFound = exports.badRequest = exports.noContent = void 0;
+var noContent = function (data) { return ({ statusCode: 204, body: data }); };
+exports.noContent = noContent;
+var badRequest = function (body) { return ({ statusCode: 400, body: body }); };
+exports.badRequest = badRequest;
+var notFound = function (body) { return ({ statusCode: 404, body: { error: body } }); };
+exports.notFound = notFound;
+var serverError = function (error) { return ({ statusCode: 500, body: error.message }); };
+exports.serverError = serverError;

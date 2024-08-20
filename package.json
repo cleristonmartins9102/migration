@@ -10,7 +10,7 @@
     "dev:sandbox": "env-cmd -f .env.sandbox ts-node-dev --watch --respawn --transpile-only node_modules src/index.ts",
     "dev:start:sandbox:docker": "npm run build && docker-compose -f docker-compose-dev.yaml up",
     "dev:stop:sandbox:docker": "docker-compose -f docker-compose.yaml down",
-    "build": "rimraf build && tsc --build && copyfiles package.json build && copyfiles .npmrc build && copyfiles permissions*.* build && copyfiles .env*.* build",
+    "build": "rimraf build && tsc -p tsconfig.build.json && copyfiles package.json build && copyfiles .npmrc build && copyfiles permissions*.* build && copyfiles .env*.* build",
     "deploy:docker": "docker build -t afsservice-authentication-service . && docker run -it -p 6001:6001 --rm afsservice-authentication-service",
     "install:dep:dev": "npm i --legacy-peer-deps",
     "install:dep:prod": "npm run install:dep:dev -- --omit=dev",
