@@ -7,8 +7,8 @@ on:
       - production
     
 env:
-  IMAGE_NAME: afs-delivery-service
-  SERVICE_NAME: 'delivery'
+  IMAGE_NAME: afs-member-service-v1
+  SERVICE_NAME: 'member-nv'
   PORT: 5050
 
 jobs:
@@ -37,9 +37,6 @@ jobs:
       - name: Configure Docker for gcloud
         run: gcloud auth configure-docker
 
-      - name: Create permissions.json
-        run: echo '${{ secrets.PERMISSIONS_JSON }}' | jq '.' > permissions.json
-     
       - name: Create credentials.json
         run: echo '${{ secrets.PERMISSIONS_JSON }}' | jq '.' > credentials.json
 
@@ -87,9 +84,6 @@ jobs:
       - name: Configure Docker for gcloud
         run: gcloud auth configure-docker
 
-      - name: Create permissions.json
-        run: echo '${{ secrets.PERMISSIONS_JSON }}' | jq '.' > permissions.json
-      
       - name: Create credentials.json
         run: echo '${{ secrets.PERMISSIONS_JSON }}' | jq '.' > credentials.json
       

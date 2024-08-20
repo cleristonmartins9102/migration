@@ -14,7 +14,6 @@ COPY ./.npmrc ./source
 
 RUN cd source && npm run install:dep:dev && npm run build && cp -r ./build/src ../src
 COPY credentials.json ./
-COPY permissions.json ./
 
 RUN rm -rf source
 RUN npm run install:dep:prod
