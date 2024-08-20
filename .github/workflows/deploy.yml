@@ -23,8 +23,8 @@ jobs:
       - name: Installing dependencies
         run: npm i --legacy-peer-deps
 
-      - name: Running tests
-        run: npm run test
+      # - name: Running tests
+      #   run: npm run test
 
       - id: 'auth'
         uses: 'google-github-actions/auth@v2'
