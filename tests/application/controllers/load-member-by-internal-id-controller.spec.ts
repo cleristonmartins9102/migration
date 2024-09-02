@@ -1,4 +1,3 @@
-import mock, { MockProxy } from 'jest-mock-extended/lib/Mock'
 import { SerializeErrors, Validation } from '@/application/contract/validation'
 import { notFound } from '@/application/helpers/http'
 import { RecordNotFoundError } from '@/application/errors'
@@ -7,6 +6,7 @@ import { makeFakeMember } from '../../stubs'
 import { LoadMemberByInternalIdController, UpdateMemberController } from '@/application/controller'
 import { LoadByInternalIdRepository } from '@/data/domain/features'
 import { MemberModel } from '@adamsfoodservice/core-models'
+import { mock, MockProxy } from 'vitest-mock-extended'
 
 describe('Load Member By internal_id', () => {
   let pgMemberRepository: MockProxy<LoadByInternalIdRepository>
@@ -22,7 +22,7 @@ describe('Load Member By internal_id', () => {
     pgMemberRepository = mock()
     pgMemberRepository.loadByInternalId.mockResolvedValue(pgMemberRepositoryResponse)
     sut = new LoadMemberByInternalIdController(pgMemberRepository)
-    controllerBuildValidatorSpy = jest.spyOn(sut, 'buildValidator')
+    controllerBuildValidatorSpy = vi.spyOn(sut, 'buildValidator')
     validatorMock.validate.mockResolvedValue(null)
     controllerBuildValidatorSpy.mockReturnValue(validatorMock)
   })

@@ -4,7 +4,7 @@ import sm from '@adamsfoodservice/shared-modules'
 import { MemberHouseHold } from '@prisma/client'
 import { CreateMemberHouseHold, CreateMemberShop } from '@/data/domain/models'
 
-export const makeFakeMember = (): CreateMemberHouseHold | CreateMemberShop => {
+export const makeFakeMemberModelStub = (): MemberModel => {
   const fakeMember: any = {
     id: faker.string.uuid() as never,
     user_account_id: '100',
@@ -22,7 +22,7 @@ export const makeFakeMember = (): CreateMemberHouseHold | CreateMemberShop => {
       name: 'company'
     },
     wallet: {
-      balance: 0,
+      balance: 1
     },
     location: {
       address: faker.location.streetAddress(),
@@ -30,15 +30,18 @@ export const makeFakeMember = (): CreateMemberHouseHold | CreateMemberShop => {
       postcode: faker.location.zipCode(),
       city: faker.location.city()
     },
+    shop: {
+      name: 'company'
+    },
     settings: {
       can_deliver: true,
-      delivery_day_1: false,
-      delivery_day_2: false,
-      delivery_day_3: false,
-      delivery_day_4: false,
-      delivery_day_5: false,
-      delivery_day_6: false,
-      delivery_day_7: false,
+      delivery_day_1: faker.date.weekday(),
+      delivery_day_2: faker.date.weekday(),
+      delivery_day_3: faker.date.weekday(),
+      delivery_day_4: faker.date.weekday(),
+      delivery_day_5: faker.date.weekday(),
+      delivery_day_6: faker.date.weekday(),
+      delivery_day_7: faker.date.weekday(),
 
       push_asked: true,
       transac_marketing_notifications: {
@@ -58,7 +61,7 @@ export const makeFakeMember = (): CreateMemberHouseHold | CreateMemberShop => {
       email: faker.internet.email(),
       phone_number: '222'
     },
-    web_parent: 1,
+    web_parent: faker.number.int(),
     updated_at: new sm.DateTime.MomentAdapter(),
     created_at: new sm.DateTime.MomentAdapter()
   }

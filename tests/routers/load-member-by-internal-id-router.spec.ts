@@ -9,7 +9,7 @@ const fakeData = makeFakeMember()
 
 
 
-jest.mock('../../src/infra/repository/pg-member-repository.ts', () => {
+vi.mock('../../src/infra/repository/pg-member-repository.ts', () => {
   return {
     PgMemberRepository: function () {
       return {

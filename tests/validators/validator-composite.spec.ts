@@ -1,7 +1,7 @@
 import { Validation } from '@/application/contract/validation'
 import { IsNotStringError, UserAlreadyExistsError } from '@/application/errors'
 import { ValidatorComposite } from '@/validator'
-import mock, { MockProxy } from 'jest-mock-extended/lib/Mock'
+import { mock, MockProxy } from 'vitest-mock-extended'
 
 describe('Validator composite', () => {
   let validator1: MockProxy<Validation>

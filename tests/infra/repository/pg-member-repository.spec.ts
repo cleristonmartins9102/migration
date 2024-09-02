@@ -3,18 +3,19 @@ import { makeFakeMember } from '../../../tests/stubs/make-member-stub'
 import timekeeper from 'timekeeper';
 import sm from '@adamsfoodservice/shared-modules'
 import { MemberModel } from '@adamsfoodservice/core-models';
+import { CreateMemberHouseHold, CreateMemberShop } from '@/data/domain/models';
 
-const createMemberMock = jest.fn()
+const createMemberMock = vi.fn()
 createMemberMock.mockResolvedValue({ id: 1 })
-const createContactMock = jest.fn()
-const createLocationMock = jest.fn()
-const createWalletMock = jest.fn()
-const createShopMock = jest.fn()
-const createSettingsMock = jest.fn()
-const findUniqueMock = jest.fn()
-const updateMock = jest.fn()
+const createContactMock = vi.fn()
+const createLocationMock = vi.fn()
+const createWalletMock = vi.fn()
+const createShopMock = vi.fn()
+const createSettingsMock = vi.fn()
+const findUniqueMock = vi.fn()
+const updateMock = vi.fn()
 
-jest.mock('@prisma/client', () => {
+vi.mock('@prisma/client', () => {
   return {
     PrismaClient: function () {
       return {
@@ -48,8 +49,8 @@ jest.mock('@prisma/client', () => {
   }
 })
 describe('PgMemberRepository', () => {
-  let createMemberData: MemberModel
-  const { created_at, updated_at, ...rest } = makeFakeMember()
+  let createMemberData: CreateMemberHouseHold | CreateMemberShop;
+  const { ...rest } = makeFakeMember()
   beforeAll(() => {
     timekeeper.freeze('2024-08-05T11:47:36')
     findUniqueMock.mockClear()
@@ -88,7 +89,7 @@ describe('PgMemberRepository', () => {
 
     it('should call member.create with correct value', async () => {
       const sut = new PgMemberRepository()
-      const { shop, wallet, location, settings, contact, ...rest } = createMemberData
+      const { wallet, location, settings, contact, ...rest } = createMemberData
       await sut.create(createMemberData)
 
       expect(createMemberMock).toHaveBeenCalled()
@@ -97,7 +98,7 @@ describe('PgMemberRepository', () => {
 
     it('should call contact.create with correct value', async () => {
       const sut = new PgMemberRepository()
-      const { shop, wallet, location, settings, contact, ...rest } = createMemberData
+      const { wallet, location, settings, contact, ...rest } = createMemberData
       await sut.create(createMemberData)
 
       expect(createContactMock).toHaveBeenCalled()
@@ -106,7 +107,7 @@ describe('PgMemberRepository', () => {
 
     it('should call address.create with correct value', async () => {
       const sut = new PgMemberRepository()
-      const { shop, wallet, location, settings, contact, ...rest } = createMemberData
+      const { wallet, location, settings, contact, ...rest } = createMemberData
       await sut.create(createMemberData)
 
       expect(createLocationMock).toHaveBeenCalled()
@@ -115,7 +116,7 @@ describe('PgMemberRepository', () => {
 
     it('should call settings.create with correct value', async () => {
       const sut = new PgMemberRepository()
-      const { shop, wallet, location, settings, contact, ...rest } = createMemberData
+      const { wallet, location, settings, contact, ...rest } = createMemberData
       await sut.create(createMemberData)
       const deliveryDays = []
       if (settings.delivery_day_1) deliveryDays.push('mon')
@@ -142,7 +143,7 @@ describe('PgMemberRepository', () => {
 
     it('should call wallet.create with correct value', async () => {
       const sut = new PgMemberRepository()
-      const { shop, wallet, location, settings, contact, ...rest } = createMemberData
+      const { wallet, location, settings, contact, ...rest } = createMemberData
       await sut.create(createMemberData)
 
       expect(createWalletMock).toHaveBeenCalled()
@@ -151,16 +152,16 @@ describe('PgMemberRepository', () => {
 
     it('should call shop.create with correct value if is a shop custumer', async () => {
       const sut = new PgMemberRepository()
-      const { shop, wallet, location, settings, contact, ...rest } = createMemberData
+      const { wallet, location, settings, contact, ...rest } = createMemberData
       await sut.create(createMemberData)
 
       expect(createShopMock).toHaveBeenCalled()
-      expect(createShopMock).toHaveBeenCalledWith({ data: { ...shop, member: { connect: { id: '1' } } } })
+      expect(createShopMock).toHaveBeenCalledWith({ data: { member: { connect: { id: '1' } } } })
     })
 
     it('should not call shop.create with correct value if is not a shop', async () => {
       const sut = new PgMemberRepository()
-      const { shop, ...withoutShop } = createMemberData
+      const { ...withoutShop } = createMemberData
 
       await sut.create(withoutShop)
 
