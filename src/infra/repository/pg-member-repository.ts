@@ -30,7 +30,7 @@ export class PgMemberRepository implements Contracts {
     const memberExists = await prisma.member.findUnique({ where: { user_account_id: memberData.user_account_id } })
     if (memberExists) throw new MemberAlreadyExistsError(memberData.user_account_id)
     const { wallet, location, settings, shop, contact, payroll_number, ...onlyMemberData } = memberData as CreateMemberHouseHold & CreateMemberShop
-    const memberPrismaResponse = await prisma.$transaction(async prisma => {
+    const memberPrismaResponse = await prisma.$transaction(async (prisma: any) => {
       const memberPrismaResponse = await prisma.member.create({ data: { ...onlyMemberData, internal_id: Math.floor(100000 + Math.random() * 900000).toString() } as any })
       await prisma.contact.create({ data: { ...contact, member: { connect: { id: memberPrismaResponse.id } } } })
       await prisma.location.create({ data: { ...location, member: { connect: { id: memberPrismaResponse.id } } } })

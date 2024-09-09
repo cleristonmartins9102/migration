@@ -1,4 +1,4 @@
-import mock, { MockProxy } from 'jest-mock-extended/lib/Mock'
+import  { mock, MockProxy } from 'vitest-mock-extended'
 import { SerializeErrors, Validation } from '@/application/contract/validation'
 import { notFound } from '@/application/helpers/http'
 import { RecordNotFoundError } from '@/application/errors'
@@ -8,7 +8,7 @@ import { UpdateMemberController } from '@/application/controller'
 
 describe('Update Delivery Controller', () => {
   const memberFakeData = makeFakeMember()
-  const httpRequest = {
+  const httpRequest: any = {
     body: memberFakeData
   }
   let dbUpdateMember: MockProxy<UpdateMember>
@@ -19,10 +19,9 @@ describe('Update Delivery Controller', () => {
   beforeAll(() => {
     dbUpdateMember = mock()
     sut = new UpdateMemberController(dbUpdateMember)
-    controllerBuildValidatorSpy = jest.spyOn(sut, 'buildValidator')
+    controllerBuildValidatorSpy = vi.spyOn(sut, 'buildValidator')
     validatorMock.validate.mockResolvedValue(null)
     controllerBuildValidatorSpy.mockReturnValue(validatorMock)
-    dbUpdateMember.update.mockResolvedValue(true)
   })
 
   beforeEach(() => {

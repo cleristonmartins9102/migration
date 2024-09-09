@@ -5,7 +5,7 @@ import { NextFunction, Request, Response } from 'express'
 import { makeFakeMember } from '../../tests/stubs/make-member-stub'
 
 
-jest.mock('../../src/infra/repository/pg-member-repository.ts', () => {
+vi.mock('../../src/infra/repository/pg-member-repository.ts', () => {
   return {
     PgMemberRepository: function () {
       return {
@@ -15,7 +15,7 @@ jest.mock('../../src/infra/repository/pg-member-repository.ts', () => {
   }
 })
 
-jest.mock('@adamsfoodservice/shared-middleware', () => ({
+vi.mock('@adamsfoodservice/shared-middleware', () => ({
   Middleware: {
     userAuth: () => (req: Request, res: Response, next: NextFunction) => { },
     serviceAccountAuthMiddleware: (permissionPath: string, storage: Contracts.Storage.SetStorage) => {
