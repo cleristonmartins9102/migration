@@ -1,4 +1,4 @@
-import { AddFcmTokenController } from '@/application/controller';
+import { AddFcmTokenController } from '@/application/controller/update/member/add-fcm-token-controller';
 import { PgSettingsRepository } from '@/infra/repository/pg-settings-repository';
 
 export const addFcmTokenControllerFactory = (): AddFcmTokenController => {

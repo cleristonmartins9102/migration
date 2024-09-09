@@ -56,7 +56,7 @@
     "typescript-eslint": "^7.18.0"
   },
   "dependencies": {
-    "@adamsfoodservice/core-models": "^1.0.70",
+    "@adamsfoodservice/core-models": "^1.0.95",
     "@adamsfoodservice/shared-middleware": "^1.0.54",
     "@adamsfoodservice/shared-modules": "^1.0.287",
     "@apollo/server": "^4.10.5",

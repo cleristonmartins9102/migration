@@ -1,6 +1,7 @@
 import { Controller, HttpRequest, HttpResponse, ValidationType } from '@/application/contract';
 import { SerializeErrors } from '@/application/contract/validation';
 import { badRequest, ok } from '@/application/helpers/http';
+import memberModelToFirebaseSchema from '@/application/utils/dto';
 import { LoadByInternalIdBatchRepository } from '@/data/domain/features/load';
 import { ValidatorComposite } from '@/validator';
 import { BuilderValidator } from '@/validator/build-validator';
@@ -14,7 +15,10 @@ export class LoadByInternalIdBatchController extends Controller<any, any> {
     const { body } = httpRequest
     if (!body) return badRequest('body')
     const repositoryResponse = await this.pgMemberRepository.loadByInternalIdBatch(body.batch)
-    return ok(repositoryResponse)
+    const mappedResponse = repositoryResponse.map((member) => {
+      return memberModelToFirebaseSchema(member)
+    })
+    return ok(mappedResponse)
   }
 
   buildValidator(): ValidationType & SerializeErrors {

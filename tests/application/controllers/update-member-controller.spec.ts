@@ -19,9 +19,7 @@ describe('Update Delivery Controller', () => {
   beforeAll(() => {
     dbUpdateMember = mock()
     sut = new UpdateMemberController(dbUpdateMember)
-    controllerBuildValidatorSpy = vi.spyOn(sut, 'buildValidator')
     validatorMock.validate.mockResolvedValue(null)
-    controllerBuildValidatorSpy.mockReturnValue(validatorMock)
   })
 
   beforeEach(() => {
@@ -30,6 +28,7 @@ describe('Update Delivery Controller', () => {
 
   describe('DbUpdateMember', () => {
     it('Should call update with correct value', async () => {
+      controllerBuildValidatorSpy = vi.spyOn(sut, 'buildValidator').mockReturnValue(validatorMock)
       await sut.perform(httpRequest)
 
       expect(dbUpdateMember.update).toHaveBeenCalled()
