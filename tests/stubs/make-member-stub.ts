@@ -1,12 +1,10 @@
-import { MemberModel, MemberShop } from '@adamsfoodservice/core-models'
+import { MemberModel } from '@adamsfoodservice/core-models'
 import { faker } from '@faker-js/faker'
 import sm from '@adamsfoodservice/shared-modules'
-import { MemberHouseHold } from '@prisma/client'
-import { CreateMemberHouseHold, CreateMemberShop } from '@/data/domain/models'
+import { L } from 'vitest/dist/chunks/reporters.C_zwCd4j'
 
-export const makeFakeMember = (): CreateMemberHouseHold | CreateMemberShop => {
+export const makeFakeMember = (): MemberModel => {
   const fakeMember: any = {
-    id: faker.string.uuid() as never,
     user_account_id: '100',
     first_name: faker.word.sample(),
     last_name: faker.word.sample(),
@@ -15,7 +13,10 @@ export const makeFakeMember = (): CreateMemberHouseHold | CreateMemberShop => {
     email_verified: true,
     internal_id: faker.string.uuid(),
     invoiced_by: faker.word.sample(),
-    payroll_number: faker.number.int() as any,
+    payroll_number: faker.number.int({
+      min: 1000,
+      max: 99999
+    }) as any,
     role: faker.word.sample(),
     branch: {
       internal_id: faker.number.int() as any,
@@ -60,7 +61,10 @@ export const makeFakeMember = (): CreateMemberHouseHold | CreateMemberShop => {
     },
     web_parent: 1,
     updated_at: new sm.DateTime.MomentAdapter(),
-    created_at: new sm.DateTime.MomentAdapter()
+    created_at: new sm.DateTime.MomentAdapter(),
+    shop: {
+      name: 'random_shop_name'
+    }
   }
 
   return fakeMember

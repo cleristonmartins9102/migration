@@ -1,6 +1,6 @@
 import { CreateMemberRepository } from '@/data/domain/features/create-member-repository'
-import { CreateMemberHouseHold, CreateMemberShop } from '@/data/domain/models';
-import { MemberModel, UpdateMemberModel } from '@adamsfoodservice/core-models';
+import { CreateMemberShop } from '@/data/domain/models';
+import { CreateMemberModel, MemberModel, UpdateMemberModel } from '@adamsfoodservice/core-models';
 import { PrismaClient } from '@prisma/client';
 import sm, { SQL } from '@adamsfoodservice/shared-modules'
 import { MemberAlreadyExistsError, PrismaError } from '@/application/errors'
@@ -25,13 +25,12 @@ type Contracts = CreateMemberRepository
 & LoadByInternalIdBatchRepository
 & LoadWithCriteriaRepository
 export class PgMemberRepository implements Contracts {
-  async create(memberData: CreateMemberHouseHold | CreateMemberShop): Promise<MemberModel> {
-    const prisma = new PrismaClient();
+  async create(memberData: CreateMemberModel, prisma: PrismaClient): Promise<MemberModel> {
     const memberExists = await prisma.member.findUnique({ where: { user_account_id: memberData.user_account_id } })
     if (memberExists) throw new MemberAlreadyExistsError(memberData.user_account_id)
-    const { wallet, location, settings, shop, contact, payroll_number, ...onlyMemberData } = memberData as CreateMemberHouseHold & CreateMemberShop
+    const { wallet, location, settings, contact, shop,  ...onlyMemberData } = memberData as any
     const memberPrismaResponse = await prisma.$transaction(async (prisma: any) => {
-      const memberPrismaResponse = await prisma.member.create({ data: { ...onlyMemberData, internal_id: Math.floor(100000 + Math.random() * 900000).toString() } as any })
+      const memberPrismaResponse = await prisma.member.create({ data: { ...onlyMemberData, internal_id: Math.floor(1000 + Math.random()).toString(), shop_name: memberData.shop.name } as any })
       await prisma.contact.create({ data: { ...contact, member: { connect: { id: memberPrismaResponse.id } } } })
       await prisma.location.create({ data: { ...location, member: { connect: { id: memberPrismaResponse.id } } } })
       const deliveryDays = []
@@ -55,13 +54,6 @@ export class PgMemberRepository implements Contracts {
       }
       await prisma.settings.create({ data: { ...settingsHandled, member: { connect: { id: memberPrismaResponse.id } } } })
       await prisma.wallet.create({ data: { ...wallet, member: { connect: { id: memberPrismaResponse.id } } } })
-
-      if (memberData instanceof CreateMemberHouseHold) {
-        await prisma.memberHouseHold.create({ data: { payroll_number: memberData.payroll_number, member: { connect: { id: memberPrismaResponse.id } } } })
-      }
-      if (memberData instanceof CreateMemberShop) {
-        await prisma.memberShop.create({ data: { ...memberData.shop, member: { connect: { id: memberPrismaResponse.id } } } })
-      }
       return memberPrismaResponse
     })
 
@@ -84,9 +76,7 @@ export class PgMemberRepository implements Contracts {
           location: true,
           contact: true,
           wallet: true,
-          settings: true,
-          membershop: true,
-          memberhousehould: true,
+          settings: true
         },
       })
     console.log(email)
@@ -125,9 +115,7 @@ export class PgMemberRepository implements Contracts {
           location: true,
           contact: true,
           wallet: true,
-          settings: true,
-          membershop: true,
-          memberhousehould: true,
+          settings: true
         },
       })
 
@@ -167,8 +155,6 @@ export class PgMemberRepository implements Contracts {
           contact: true,
           wallet: true,
           settings: true,
-          membershop: true,
-          memberhousehould: true,
         },
       })
 
@@ -203,7 +189,7 @@ export class PgMemberRepository implements Contracts {
     return response
   }
 
-  async loadWithCriteria(criteria: Contracts.Expression): Promise<MemberModel[]> {
+  async loadWithCriteria(criteria: Contracts.Predicate.Expression): Promise<MemberModel[]> {
     const prisma = new PrismaClient();
     const dump: any = criteria.dump(SQL.Criteria.DataSourceType.Prisma)
     try {
@@ -215,8 +201,6 @@ export class PgMemberRepository implements Contracts {
             contact: true,
             wallet: true,
             settings: true,
-            membershop: true,
-            memberhousehould: true,
           },
         })
       if (!prismaResponse) return []
@@ -266,8 +250,6 @@ export class PgMemberRepository implements Contracts {
           contact: true,
           wallet: true,
           settings: true,
-          membershop: true,
-          memberhousehould: true,
         },
   } )
     if (!prismaResponse) return []
@@ -311,8 +293,6 @@ export class PgMemberRepository implements Contracts {
           contact: true,
           wallet: true,
           settings: true,
-          membershop: true,
-          memberhousehould: true,
         },
       })
 
@@ -353,8 +333,6 @@ export class PgMemberRepository implements Contracts {
           contact: true,
           wallet: true,
           settings: true,
-          membershop: true,
-          memberhousehould: true,
         },
       })
 
@@ -373,8 +351,6 @@ export class PgMemberRepository implements Contracts {
           internal_id,
         },
         include: {
-          memberhousehould: true,
-          membershop: true,
           location: true,
           contact: true,
           settings: true,
@@ -421,8 +397,6 @@ export class PgMemberRepository implements Contracts {
         }
       },
       include: {
-        memberhousehould: true,
-        membershop: true,
         location: true,
         contact: true,
         settings: true,
