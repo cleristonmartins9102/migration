@@ -7,7 +7,7 @@ import { ValidatorComposite } from '@/validator'
 import { BuilderValidator } from '@/validator/build-validator'
 import { FormatMemberData } from '@/data/services'
 import { CreateMemberModelFactory } from '@/application/utils/create-member-model-factory'
-import prismaClient from '../../../../prisma/prisma-client-object'
+import prismaClient from '@/infra/repository/helpers/prisma-client-object'
 import { CreateMemberModel } from '@adamsfoodservice/core-models'
 
 
