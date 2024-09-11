@@ -11,6 +11,7 @@ import { Wallet } from '@adamsfoodservice/core-models/dist/types/models/general'
 import { storage } from '@/application/storage/storage';
 import { LoadWithCriteriaRepository } from '@/data/domain/features/load/load-with-criteria-repository';
 import { Contracts } from '@adamsfoodservice/shared-modules'
+import { resetDb } from 'tests/helpers/resetDb';
 
 type Contracts = CreateMemberRepository 
 & LoadByIdRepository 
@@ -27,35 +28,37 @@ type Contracts = CreateMemberRepository
 export class PgMemberRepository implements Contracts {
   async create(memberData: CreateMemberModel, prisma: PrismaClient): Promise<MemberModel> {
     const memberExists = await prisma.member.findUnique({ where: { user_account_id: memberData.user_account_id } })
+    console.log(memberExists)
     if (memberExists) throw new MemberAlreadyExistsError(memberData.user_account_id)
     const { wallet, location, settings, contact, shop,  ...onlyMemberData } = memberData as any
-    const memberPrismaResponse = await prisma.$transaction(async (prisma: any) => {
-      const memberPrismaResponse = await prisma.member.create({ data: { ...onlyMemberData, internal_id: Math.floor(1000 + Math.random()).toString(), shop_name: memberData.shop.name } as any })
-      await prisma.contact.create({ data: { ...contact, member: { connect: { id: memberPrismaResponse.id } } } })
-      await prisma.location.create({ data: { ...location, member: { connect: { id: memberPrismaResponse.id } } } })
-      const deliveryDays = []
-      if (settings.delivery_day_1) deliveryDays.push('mon')
-      if (settings.delivery_day_2) deliveryDays.push('tue')
-      if (settings.delivery_day_3) deliveryDays.push('wed')
-      if (settings.delivery_day_4) deliveryDays.push('thu')
-      if (settings.delivery_day_5) deliveryDays.push('fri')
-      if (settings.delivery_day_6) deliveryDays.push('sat')
-      if (settings.delivery_day_7) deliveryDays.push('sun')
-      const settingsHandled = {
-        can_deliver: settings.can_deliver,
-        delivery_day: deliveryDays,
-        push_asked: settings.push_asked,
-        marketing_email: settings.transac_marketing_notifications.marketing.email,
-        marketing_push: settings.transac_marketing_notifications.marketing.push,
-        marketing_sms: settings.transac_marketing_notifications.marketing.sms,
-        transactional_email: settings.transac_marketing_notifications.transactional.email,
-        transactional_push: settings.transac_marketing_notifications.transactional.push,
-        transactional_sms: settings.transac_marketing_notifications.transactional.sms
-      }
-      await prisma.settings.create({ data: { ...settingsHandled, member: { connect: { id: memberPrismaResponse.id } } } })
-      await prisma.wallet.create({ data: { ...wallet, member: { connect: { id: memberPrismaResponse.id } } } })
-      return memberPrismaResponse
-    })
+    const deliveryDays = []
+    if (settings.delivery_day_1) deliveryDays.push('mon')
+    if (settings.delivery_day_2) deliveryDays.push('tue')
+    if (settings.delivery_day_3) deliveryDays.push('wed')
+    if (settings.delivery_day_4) deliveryDays.push('thu')
+    if (settings.delivery_day_5) deliveryDays.push('fri')
+    if (settings.delivery_day_6) deliveryDays.push('sat')
+    if (settings.delivery_day_7) deliveryDays.push('sun')
+    const settingsHandled = {
+      can_deliver: settings.can_deliver,
+      delivery_day: deliveryDays,
+      push_asked: settings.push_asked,
+      marketing_email: settings.transac_marketing_notifications.marketing.email,
+      marketing_push: settings.transac_marketing_notifications.marketing.push,
+      marketing_sms: settings.transac_marketing_notifications.marketing.sms,
+      transactional_email: settings.transac_marketing_notifications.transactional.email,
+      transactional_push: settings.transac_marketing_notifications.transactional.push,
+      transactional_sms: settings.transac_marketing_notifications.transactional.sms
+    }
+
+    const memberPrismaResponse = await prisma.member.create({ data: { ...onlyMemberData, internal_id: Math.floor(1000 + Math.random()).toString(), shop_name: memberData.shop.name } as any })
+
+   await prisma.$transaction([
+      prisma.contact.create({ data: { ...contact, member: { connect: { id: memberPrismaResponse.id } } } }),
+      prisma.location.create({ data: { ...location, member: { connect: { id: memberPrismaResponse.id } } } }),
+      prisma.settings.create({ data: { ...settingsHandled, member: { connect: { id: memberPrismaResponse.id } } } }),
+      prisma.wallet.create({ data: { ...wallet, member: { connect: { id: memberPrismaResponse.id } } } }),
+    ])
 
     const memberModel: MemberModel = {
       id: memberPrismaResponse.id.toString(),

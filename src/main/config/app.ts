@@ -5,7 +5,6 @@ import { setupRouters } from './setup-router'
 import { jsonMiddleware } from '../middlewares/json'
 import { setupSwagger } from '../docs/swagger'
 import { setupLogger } from './setup-logger'
-import { setupDevLocalWork } from './setup-dev-local-work'
 import { setupGraphql } from './setup-graphql'
 const app = express()
 
@@ -17,6 +16,5 @@ export const createApp = async (): Promise<Express> => {
   setupSwagger(app)
   setupGraphql(app)
   setupLogger()
-  setupDevLocalWork()
   return app
 }

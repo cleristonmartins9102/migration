@@ -7,6 +7,8 @@ import { ValidatorComposite } from '@/validator'
 import { BuilderValidator } from '@/validator/build-validator'
 import { FormatMemberData } from '@/data/services'
 import { CreateMemberModelFactory } from '@/application/utils/create-member-model-factory'
+import prismaClient from 'prisma/prisma-client-object'
+import { CreateMemberModel } from '@adamsfoodservice/core-models'
 
 
 export class CreateMemberController extends Controller<any, any> {
@@ -20,7 +22,9 @@ export class CreateMemberController extends Controller<any, any> {
     let repositoryResponse: any
     try {
       if (body) {
-        repositoryResponse = await this.pgMemberRepository.create(this.formatMemberDataService(CreateMemberModelFactory.factory(body)))
+        const computedBody: CreateMemberModel = CreateMemberModelFactory.factory(body)
+        const computedBodyFormatted = this.formatMemberDataService(computedBody)
+        repositoryResponse = await this.pgMemberRepository.create(computedBodyFormatted, prismaClient)
       }
     } catch (error) {
       console.log(error)

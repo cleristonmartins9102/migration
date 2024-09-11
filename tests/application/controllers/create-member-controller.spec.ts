@@ -7,6 +7,7 @@ import { badRequest, created } from '@/application/helpers/http'
 import { makeFakeMember } from '../../../tests/stubs'
 import { MemberAlreadyExistsError } from '@/application/errors'
 import { mock, MockProxy } from 'vitest-mock-extended'
+import { CreateMemberModelFactory } from '@/application/utils/create-member-model-factory'
 
 
   describe('Create Member Controller', () => {  
@@ -39,11 +40,11 @@ import { mock, MockProxy } from 'vitest-mock-extended'
   })
 
   describe('format data', () => {
-    it('should call formatMemberData with correct value', async () => {
+    it.only('should call formatMemberData with correct value', async () => {
       await sut.perform(httpRequest)
 
       expect(formatMemberDataService).toHaveBeenCalled()
-      expect(formatMemberDataService).toHaveBeenCalledWith(httpRequest.body)
+      expect(formatMemberDataService).toHaveBeenCalledWith(CreateMemberModelFactory.factory(httpRequest.body))
     })
   })
 

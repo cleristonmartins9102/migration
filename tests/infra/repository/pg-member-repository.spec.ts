@@ -4,33 +4,45 @@ import timekeeper from 'timekeeper';
 import sm from '@adamsfoodservice/shared-modules'
 import { MemberModel } from '@adamsfoodservice/core-models';
 import { PrismaClient } from '@prisma/client';
+import { PostgreSqlContainer } from '@testcontainers/postgresql'; 
+import { resetDb } from 'tests/helpers/resetDb';
 
-
-const client = new PrismaClient()
 
 describe('PgMemberRepository', () => {
   let createMemberData: MemberModel
   const { ...rest } = makeFakeMember()
+
+  let postgresContainer: any;
+  let client: PrismaClient;
   
-  beforeAll(() => {
+  beforeAll(async () => {
     timekeeper.freeze('2024-08-05T11:47:36')
-    client.$transaction([
-      client.member.deleteMany(),
-      client.contact.deleteMany(),
-      client.member.deleteMany(),
-      client.wallet.deleteMany(),
-      client.location.deleteMany(),
-    ])
+    postgresContainer = await new PostgreSqlContainer().start();
+    client = new PrismaClient({
+      datasourceUrl: 'postgresql://postgres:postgres@localhost:5432/member-dev-local',
+    })
+    await client.$connect();
   })
 
   beforeEach(() => {
     createMemberData = makeFakeMember()
-    
+  })
+
+  afterAll(async () => {
+    await client.$transaction([
+      client.contact.deleteMany(),
+      client.member.deleteMany(),
+      client.wallet.deleteMany(),
+      client.location.deleteMany(),
+      client.member.deleteMany(),
+    ])
+    await client.$disconnect()
+    await postgresContainer.stop();
   })
 
   describe('Save', () => {
-    afterEach(() => {
-      client.$transaction([
+    beforeEach(async () => {
+      await client.$transaction([
         client.member.deleteMany(),
         client.contact.deleteMany(),
         client.member.deleteMany(),
@@ -39,7 +51,7 @@ describe('PgMemberRepository', () => {
       ])
     })
 
-    it('should call findUnique with correct value', async () => {
+    it.only('should call findUnique with correct value', async () => {
       const sut = new PgMemberRepository()
       const spy = vi.spyOn(client.member, 'findUnique')
 
@@ -61,7 +73,7 @@ describe('PgMemberRepository', () => {
 
 
 
-    it.only('should call member.create with correct value', async () => {
+    it('should call member.create with correct value', async () => {
       const sut = new PgMemberRepository()
       const spy = vi.spyOn(sut, 'create')
       const { wallet, location, settings, contact, ...rest } = createMemberData
@@ -73,7 +85,10 @@ describe('PgMemberRepository', () => {
     it('should call contact.create with correct value', async () => {
       const sut = new PgMemberRepository()
       const { wallet, location, settings, contact, ...rest } = createMemberData
-      await sut.create(createMemberData, client)
+      const spy = vi.spyOn(client.contact, 'create')
+      const result = await sut.create(createMemberData, client)
+      expect(spy).toHaveBeenCalled()
+      expect(client.contact.create).toBe({})
     })
 
     it('should call address.create with correct value', async () => {

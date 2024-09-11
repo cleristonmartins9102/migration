@@ -5,11 +5,13 @@ import { RecordNotFoundError } from '@/application/errors'
 import { UpdateMember } from '@/data/domain/features/update/update-member'
 import { makeFakeMember } from '../../../tests/stubs'
 import { UpdateMemberController } from '@/application/controller'
+import { UpdateResult } from 'typeorm'
 
 describe('Update Delivery Controller', () => {
   const memberFakeData = makeFakeMember()
   const httpRequest: any = {
-    body: memberFakeData
+    body: memberFakeData,
+    contentType: 'application/json'
   }
   let dbUpdateMember: MockProxy<UpdateMember>
   let sut: UpdateMemberController
@@ -51,6 +53,7 @@ describe('Update Delivery Controller', () => {
   })
 
   it('Should return 200 on success with the same value received from PgDeliveryRepository ', async () => {
+    dbUpdateMember.update.mockResolvedValueOnce(true)
     const controllerResponse = await sut.perform(httpRequest)
 
     expect(controllerResponse).toEqual({

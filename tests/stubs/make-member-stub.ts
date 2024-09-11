@@ -1,7 +1,6 @@
 import { MemberModel } from '@adamsfoodservice/core-models'
 import { faker } from '@faker-js/faker'
 import sm from '@adamsfoodservice/shared-modules'
-import { L } from 'vitest/dist/chunks/reporters.C_zwCd4j'
 
 export const makeFakeMember = (): MemberModel => {
   const fakeMember: any = {
@@ -19,6 +18,7 @@ export const makeFakeMember = (): MemberModel => {
     }) as any,
     role: faker.word.sample(),
     branch: {
+      id: 'Z',
       internal_id: faker.number.int() as any,
       name: 'company'
     },
@@ -68,4 +68,26 @@ export const makeFakeMember = (): MemberModel => {
   }
 
   return fakeMember
+}
+
+
+export const MakeMemberRequest = () => {
+  return {
+    id: '100',
+    phone_number: '+447123456789',
+    email: 'a@g.com',
+    branch_id: 'Z',
+    shop_address: '123 street',
+    town: 'town',
+    postcode: 'SW1A 1AA',
+    push: false,
+    sms: false,
+    push_marketing: false,
+    sms_marketing: false,
+    email_marketing: false,
+    first_name: 'first',
+    last_name: 'last',
+    customer_type: 'customer',
+    shop_name: 'random_shop_name'
+  }
 }

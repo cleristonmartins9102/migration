@@ -7,7 +7,7 @@ export type UpdateMemberModel = {
 }
 
 export interface UpdateMember {
-  update (memberData: UpdateMemberModel): Promise<UpdateMember.UpdateResult>
+  update (memberData: UpdateMemberModel): Promise<boolean>
 }
 
 export namespace UpdateMember {

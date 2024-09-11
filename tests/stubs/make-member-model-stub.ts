@@ -1,8 +1,6 @@
-import { MemberModel, MemberShop } from '@adamsfoodservice/core-models'
+import { MemberModel } from '@adamsfoodservice/core-models'
 import { faker } from '@faker-js/faker'
 import sm from '@adamsfoodservice/shared-modules'
-import { MemberHouseHold } from '@prisma/client'
-import { CreateMemberHouseHold, CreateMemberShop } from '@/data/domain/models'
 
 export const makeFakeMemberModelStub = (): MemberModel => {
   const fakeMember: any = {

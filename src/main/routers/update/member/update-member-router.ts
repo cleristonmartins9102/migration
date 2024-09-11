@@ -180,13 +180,6 @@ import { updateMemberNotificationDecoratorControllerFactory } from '@/main/facto
  *         created_at:
  *           type: string
  *           format: date-time
- * 
- * components:
- *   securitySchemes:
- *     bearerAuth:
- *       type: http
- *       scheme: bearer
- *       bearerFormat: JWT
  */
 export const updateMemberRouter = (router: Router): void => {
   const authMiddleware = Middleware.userAuth(path.join(__dirname, '../../../../credentials.json'), storage.currentUser)
