@@ -7,7 +7,7 @@ import { ValidatorComposite } from '@/validator'
 import { BuilderValidator } from '@/validator/build-validator'
 import { FormatMemberData } from '@/data/services'
 import { CreateMemberModelFactory } from '@/application/utils/create-member-model-factory'
-import prismaClient from 'prisma/prisma-client-object'
+import prismaClient from '../../../../prisma/prisma-client-object'
 import { CreateMemberModel } from '@adamsfoodservice/core-models'
 
 
@@ -18,6 +18,7 @@ export class CreateMemberController extends Controller<any, any> {
   ) { super() }
 
   async perform(httpRequest: HttpRequest<CreateMemberController.Input, unknown>): Promise<HttpResponse<any>> {
+    console.log(prismaClient)
     const { body } = httpRequest
     let repositoryResponse: any
     try {
