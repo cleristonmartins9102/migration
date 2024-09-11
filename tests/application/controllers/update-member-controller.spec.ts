@@ -1,15 +1,17 @@
-import mock, { MockProxy } from 'jest-mock-extended/lib/Mock'
+import  { mock, MockProxy } from 'vitest-mock-extended'
 import { SerializeErrors, Validation } from '@/application/contract/validation'
 import { notFound } from '@/application/helpers/http'
 import { RecordNotFoundError } from '@/application/errors'
 import { UpdateMember } from '@/data/domain/features/update/update-member'
 import { makeFakeMember } from '../../../tests/stubs'
 import { UpdateMemberController } from '@/application/controller'
+import { UpdateResult } from 'typeorm'
 
 describe('Update Delivery Controller', () => {
   const memberFakeData = makeFakeMember()
-  const httpRequest = {
-    body: memberFakeData
+  const httpRequest: any = {
+    body: memberFakeData,
+    contentType: 'application/json'
   }
   let dbUpdateMember: MockProxy<UpdateMember>
   let sut: UpdateMemberController
@@ -19,10 +21,7 @@ describe('Update Delivery Controller', () => {
   beforeAll(() => {
     dbUpdateMember = mock()
     sut = new UpdateMemberController(dbUpdateMember)
-    controllerBuildValidatorSpy = jest.spyOn(sut, 'buildValidator')
     validatorMock.validate.mockResolvedValue(null)
-    controllerBuildValidatorSpy.mockReturnValue(validatorMock)
-    dbUpdateMember.update.mockResolvedValue(true)
   })
 
   beforeEach(() => {
@@ -31,6 +30,7 @@ describe('Update Delivery Controller', () => {
 
   describe('DbUpdateMember', () => {
     it('Should call update with correct value', async () => {
+      controllerBuildValidatorSpy = vi.spyOn(sut, 'buildValidator').mockReturnValue(validatorMock)
       await sut.perform(httpRequest)
 
       expect(dbUpdateMember.update).toHaveBeenCalled()
@@ -53,6 +53,7 @@ describe('Update Delivery Controller', () => {
   })
 
   it('Should return 200 on success with the same value received from PgDeliveryRepository ', async () => {
+    dbUpdateMember.update.mockResolvedValueOnce(true)
     const controllerResponse = await sut.perform(httpRequest)
 
     expect(controllerResponse).toEqual({

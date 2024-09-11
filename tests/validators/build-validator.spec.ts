@@ -4,7 +4,7 @@ import { EmailValidator } from '@/validator/email-validator'
 
 describe('build validator', () => {
   it('should call required with correct value and create new validator', async () => {
-    const requiredSpy = jest.spyOn(BuilderValidator.prototype, 'required')
+    const requiredSpy = vi.spyOn(BuilderValidator.prototype, 'required')
 
     const sut = BuilderValidator
       .of('any_param')

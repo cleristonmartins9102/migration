@@ -1,18 +1,18 @@
-import mock, { MockProxy } from 'jest-mock-extended/lib/Mock'
+import { mock, MockProxy } from 'vitest-mock-extended'
 import timekeeper from 'timekeeper'
-import { DbUpdateMember } from '@/data/features/db-update-member'
-import { LoadMemberByIdRepository, UpdateMemberRepository } from '@/data/domain/features'
-import { makeFakeMember } from '../../tests/stubs'
+import { LoadByIdRepository, UpdateMemberRepository } from '@/data/domain/features'
+import { makeFakeMember, makeFakeMemberModelStub } from '../../tests/stubs'
 import { MemberModel } from '@adamsfoodservice/core-models'
 import { RecordNotFoundError } from '@/application/errors'
+import { DbUpdateMember } from '@/data/features'
 
 
 describe('Db Update Delivery', () => {
-  let pgMemberRepo: MockProxy<UpdateMemberRepository & LoadMemberByIdRepository>
+  let pgMemberRepo: MockProxy<UpdateMemberRepository & LoadByIdRepository>
   let sut: DbUpdateMember
   let memberFakeData: MemberModel
   beforeAll(() => {
-    memberFakeData = makeFakeMember()
+    memberFakeData = makeFakeMemberModelStub()
 
     timekeeper.freeze('2024-07-15 00:00:00')
     pgMemberRepo = mock()

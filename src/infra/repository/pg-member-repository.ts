@@ -1,6 +1,6 @@
 import { CreateMemberRepository } from '@/data/domain/features/create-member-repository'
-import { CreateMemberHouseHold, CreateMemberShop } from '@/data/domain/models';
-import { MemberModel, UpdateMemberModel } from '@adamsfoodservice/core-models';
+import { CreateMemberShop } from '@/data/domain/models';
+import { CreateMemberModel, MemberModel, UpdateMemberModel } from '@adamsfoodservice/core-models';
 import { PrismaClient } from '@prisma/client';
 import sm, { SQL } from '@adamsfoodservice/shared-modules'
 import { MemberAlreadyExistsError, PrismaError } from '@/application/errors'
@@ -11,6 +11,7 @@ import { Wallet } from '@adamsfoodservice/core-models/dist/types/models/general'
 import { storage } from '@/application/storage/storage';
 import { LoadWithCriteriaRepository } from '@/data/domain/features/load/load-with-criteria-repository';
 import { Contracts } from '@adamsfoodservice/shared-modules'
+import { resetDb } from 'tests/helpers/resetDb';
 
 type Contracts = CreateMemberRepository 
 & LoadByIdRepository 
@@ -25,45 +26,39 @@ type Contracts = CreateMemberRepository
 & LoadByInternalIdBatchRepository
 & LoadWithCriteriaRepository
 export class PgMemberRepository implements Contracts {
-  async create(memberData: CreateMemberHouseHold | CreateMemberShop): Promise<MemberModel> {
-    const prisma = new PrismaClient();
+  async create(memberData: CreateMemberModel, prisma: PrismaClient): Promise<MemberModel> {
     const memberExists = await prisma.member.findUnique({ where: { user_account_id: memberData.user_account_id } })
+    console.log(memberExists)
     if (memberExists) throw new MemberAlreadyExistsError(memberData.user_account_id)
-    const { wallet, location, settings, shop, contact, payroll_number, ...onlyMemberData } = memberData as CreateMemberHouseHold & CreateMemberShop
-    const memberPrismaResponse = await prisma.$transaction(async (prisma: any) => {
-      const memberPrismaResponse = await prisma.member.create({ data: { ...onlyMemberData, internal_id: Math.floor(100000 + Math.random() * 900000).toString() } as any })
-      await prisma.contact.create({ data: { ...contact, member: { connect: { id: memberPrismaResponse.id } } } })
-      await prisma.location.create({ data: { ...location, member: { connect: { id: memberPrismaResponse.id } } } })
-      const deliveryDays = []
-      if (settings.delivery_day_1) deliveryDays.push('mon')
-      if (settings.delivery_day_2) deliveryDays.push('tue')
-      if (settings.delivery_day_3) deliveryDays.push('wed')
-      if (settings.delivery_day_4) deliveryDays.push('thu')
-      if (settings.delivery_day_5) deliveryDays.push('fri')
-      if (settings.delivery_day_6) deliveryDays.push('sat')
-      if (settings.delivery_day_7) deliveryDays.push('sun')
-      const settingsHandled = {
-        can_deliver: settings.can_deliver,
-        delivery_day: deliveryDays,
-        push_asked: settings.push_asked,
-        marketing_email: settings.transac_marketing_notifications.marketing.email,
-        marketing_push: settings.transac_marketing_notifications.marketing.push,
-        marketing_sms: settings.transac_marketing_notifications.marketing.sms,
-        transactional_email: settings.transac_marketing_notifications.transactional.email,
-        transactional_push: settings.transac_marketing_notifications.transactional.push,
-        transactional_sms: settings.transac_marketing_notifications.transactional.sms
-      }
-      await prisma.settings.create({ data: { ...settingsHandled, member: { connect: { id: memberPrismaResponse.id } } } })
-      await prisma.wallet.create({ data: { ...wallet, member: { connect: { id: memberPrismaResponse.id } } } })
+    const { wallet, location, settings, contact, shop,  ...onlyMemberData } = memberData as any
+    const deliveryDays = []
+    if (settings.delivery_day_1) deliveryDays.push('mon')
+    if (settings.delivery_day_2) deliveryDays.push('tue')
+    if (settings.delivery_day_3) deliveryDays.push('wed')
+    if (settings.delivery_day_4) deliveryDays.push('thu')
+    if (settings.delivery_day_5) deliveryDays.push('fri')
+    if (settings.delivery_day_6) deliveryDays.push('sat')
+    if (settings.delivery_day_7) deliveryDays.push('sun')
+    const settingsHandled = {
+      can_deliver: settings.can_deliver,
+      delivery_day: deliveryDays,
+      push_asked: settings.push_asked,
+      marketing_email: settings.transac_marketing_notifications.marketing.email,
+      marketing_push: settings.transac_marketing_notifications.marketing.push,
+      marketing_sms: settings.transac_marketing_notifications.marketing.sms,
+      transactional_email: settings.transac_marketing_notifications.transactional.email,
+      transactional_push: settings.transac_marketing_notifications.transactional.push,
+      transactional_sms: settings.transac_marketing_notifications.transactional.sms
+    }
 
-      if (memberData instanceof CreateMemberHouseHold) {
-        await prisma.memberHouseHold.create({ data: { payroll_number: memberData.payroll_number, member: { connect: { id: memberPrismaResponse.id } } } })
-      }
-      if (memberData instanceof CreateMemberShop) {
-        await prisma.memberShop.create({ data: { ...memberData.shop, member: { connect: { id: memberPrismaResponse.id } } } })
-      }
-      return memberPrismaResponse
-    })
+    const memberPrismaResponse = await prisma.member.create({ data: { ...onlyMemberData, internal_id: Math.floor(1000 + Math.random()).toString(), shop_name: memberData.shop.name } as any })
+
+   await prisma.$transaction([
+      prisma.contact.create({ data: { ...contact, member: { connect: { id: memberPrismaResponse.id } } } }),
+      prisma.location.create({ data: { ...location, member: { connect: { id: memberPrismaResponse.id } } } }),
+      prisma.settings.create({ data: { ...settingsHandled, member: { connect: { id: memberPrismaResponse.id } } } }),
+      prisma.wallet.create({ data: { ...wallet, member: { connect: { id: memberPrismaResponse.id } } } }),
+    ])
 
     const memberModel: MemberModel = {
       id: memberPrismaResponse.id.toString(),
@@ -84,9 +79,7 @@ export class PgMemberRepository implements Contracts {
           location: true,
           contact: true,
           wallet: true,
-          settings: true,
-          membershop: true,
-          memberhousehould: true,
+          settings: true
         },
       })
     if (!prismaResponse) return null
@@ -124,9 +117,7 @@ export class PgMemberRepository implements Contracts {
           location: true,
           contact: true,
           wallet: true,
-          settings: true,
-          membershop: true,
-          memberhousehould: true,
+          settings: true
         },
       })
 
@@ -166,8 +157,6 @@ export class PgMemberRepository implements Contracts {
           contact: true,
           wallet: true,
           settings: true,
-          membershop: true,
-          memberhousehould: true,
         },
       })
 
@@ -202,7 +191,7 @@ export class PgMemberRepository implements Contracts {
     return response
   }
 
-  async loadWithCriteria(criteria: Contracts.Expression): Promise<MemberModel[]> {
+  async loadWithCriteria(criteria: Contracts.Predicate.Expression): Promise<MemberModel[]> {
     const prisma = new PrismaClient();
     const dump: any = criteria.dump(SQL.Criteria.DataSourceType.Prisma)
     try {
@@ -214,8 +203,6 @@ export class PgMemberRepository implements Contracts {
             contact: true,
             wallet: true,
             settings: true,
-            membershop: true,
-            memberhousehould: true,
           },
         })
       if (!prismaResponse) return []
@@ -265,8 +252,6 @@ export class PgMemberRepository implements Contracts {
           contact: true,
           wallet: true,
           settings: true,
-          membershop: true,
-          memberhousehould: true,
         },
   } )
     if (!prismaResponse) return []
@@ -310,8 +295,6 @@ export class PgMemberRepository implements Contracts {
           contact: true,
           wallet: true,
           settings: true,
-          membershop: true,
-          memberhousehould: true,
         },
       })
 
@@ -352,8 +335,6 @@ export class PgMemberRepository implements Contracts {
           contact: true,
           wallet: true,
           settings: true,
-          membershop: true,
-          memberhousehould: true,
         },
       })
 
@@ -372,8 +353,6 @@ export class PgMemberRepository implements Contracts {
           internal_id,
         },
         include: {
-          memberhousehould: true,
-          membershop: true,
           location: true,
           contact: true,
           settings: true,
@@ -420,8 +399,6 @@ export class PgMemberRepository implements Contracts {
         }
       },
       include: {
-        memberhousehould: true,
-        membershop: true,
         location: true,
         contact: true,
         settings: true,

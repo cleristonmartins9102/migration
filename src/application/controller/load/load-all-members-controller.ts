@@ -1,5 +1,6 @@
 import { Controller, HttpRequest, HttpResponse } from '@/application/contract';
 import { ok } from '@/application/helpers/http';
+import memberModelToFirebaseSchema from '@/application/utils/dto';
 import { LoadAllRepository } from '@/data/domain/features/load';
 import { LoadWithCriteriaRepository } from '@/data/domain/features/load/load-with-criteria-repository'
 import { SQL } from '@adamsfoodservice/shared-modules';
@@ -20,10 +21,16 @@ export class LoadAllMembersController extends Controller<any, any> {
         count++
       }
       const repositoryResponse = await this.pgMemberRepository.loadWithCriteria(criteria)
-      return ok(repositoryResponse)
+      const mappedResponse = repositoryResponse.map((member) => {
+        return memberModelToFirebaseSchema(member)
+      })
+      return ok(mappedResponse)
     } else {
       const repositoryResponse = await this.pgMemberRepository.loadAll()
-      return ok(repositoryResponse)
+      const mappedResponse = repositoryResponse.map((member) => {
+        return memberModelToFirebaseSchema(member)
+      })
+      return ok(mappedResponse)
     }
   }
 }

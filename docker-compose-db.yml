@@ -1,0 +1,17 @@
+# docker-compose-db.yml
+services:
+  db:
+    image: postgres:16.4
+    restart: always
+    container_name: db-tests-orders
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: member-dev-local
+    volumes:
+      - db:/var/lib/postgresql/data
+volumes:
+  db:
+    driver: local

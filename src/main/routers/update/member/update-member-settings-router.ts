@@ -4,6 +4,8 @@ import { updatePushSettingsControllerAdapterFactory, updateSmsSettingsController
 import { Middleware } from '@adamsfoodservice/shared-middleware';
 import path from 'path'
 import { storage } from '@/application/storage/storage';
+import { removeFcmTokenControllerFactory } from '@/main/factories/controller/update/settings/remove-fcm-token-controller-factory';
+import { addFcmTokenControllerFactory } from '@/main/factories/controller/update/settings/add-fcm-token-controller-factory';
 /**
  * @swagger
  * /api/member/v1/update-sms-notifications:
@@ -192,4 +194,6 @@ export const updateMemberSettingsRouter = (router: Router): void => {
   router.post('/update-push-notifications', userAuth, expressAdapter(updatePushSettingsControllerAdapterFactory()))
   router.post('/update-email-notifications', userAuth, expressAdapter(updateEmailSettingsControllerAdapterFactory()))
   router.post('/update-push-asked', userAuth, expressAdapter(activatePushAskedSettingsControllerAdapterFactory()))
+  router.post('/add-fcm-token', userAuth, expressAdapter(addFcmTokenControllerFactory()))
+  router.post('/remove-fcm-token', userAuth, expressAdapter(removeFcmTokenControllerFactory()))
 }

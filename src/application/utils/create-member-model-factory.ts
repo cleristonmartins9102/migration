@@ -1,11 +1,14 @@
-import { CreateMemberHouseHold, CreateMemberModel, CreateMemberShop } from '@/data/domain/models'
+import { CreateMemberModel, CreateMemberShop } from '@/data/domain/models'
 import { CreateMemberController } from '../controller/create'
 
 export class CreateMemberModelFactory {
   static factory(body: CreateMemberController.Input): CreateMemberModel {
     switch (body.customer_type) {
       case 'Z05': { 
-        return new CreateMemberHouseHold({
+        return  {
+          shop: {
+            name: body.shop_name
+          },
           wallet: { balance: 0 },
           user_account_id: body.id,
           first_name: body?.first_name,
@@ -18,6 +21,7 @@ export class CreateMemberModelFactory {
           payroll_number: 1,
           role: '',
           branch: {
+            id: body.branch_id,
             internal_id: '',
             name: body.branch_id
           },
@@ -29,6 +33,13 @@ export class CreateMemberModelFactory {
           },
           settings: {
             can_deliver: true,
+            delivery_day_1: false,
+            delivery_day_2: false,
+            delivery_day_3: false,
+            delivery_day_4: false,
+            delivery_day_5: false,
+            delivery_day_6: false,
+            delivery_day_7: false,
             push_asked: true,
             transac_marketing_notifications: {
               marketing: {
@@ -48,7 +59,7 @@ export class CreateMemberModelFactory {
             email: body.email
           },
           web_parent: 1
-        })
+        }
       }
 
       default: {
@@ -64,6 +75,7 @@ export class CreateMemberModelFactory {
           invoiced_by: '',
           role: '',
           branch: {
+            id: body.branch_id,
             internal_id: '',
             name: body.branch_id
           },
@@ -78,6 +90,13 @@ export class CreateMemberModelFactory {
           },
           settings: {
             can_deliver: true,
+            delivery_day_1: false,
+            delivery_day_2: false,
+            delivery_day_3: false,
+            delivery_day_4: false,
+            delivery_day_5: false,
+            delivery_day_6: false,
+            delivery_day_7: false,
             push_asked: true,
             transac_marketing_notifications: {
               marketing: {

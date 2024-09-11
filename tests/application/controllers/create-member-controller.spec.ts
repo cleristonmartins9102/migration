@@ -1,4 +1,3 @@
-import mock, { MockProxy } from 'jest-mock-extended/lib/Mock'
 import { SerializeErrors, Validation } from '@/application/contract/validation'
 import timekeeper from 'timekeeper'
 import sm from '@adamsfoodservice/shared-modules'
@@ -7,13 +6,15 @@ import { CreateMemberController } from '@/application/controller'
 import { badRequest, created } from '@/application/helpers/http'
 import { makeFakeMember } from '../../../tests/stubs'
 import { MemberAlreadyExistsError } from '@/application/errors'
+import { mock, MockProxy } from 'vitest-mock-extended'
+import { CreateMemberModelFactory } from '@/application/utils/create-member-model-factory'
 
 
   describe('Create Member Controller', () => {  
   const memberFakeData = makeFakeMember()
   let formatMemberDataService: any
   let pgDeliveryRepoDefaultResponse: any
-  const httpRequest = {
+  const httpRequest: any = {
     body: memberFakeData
   }
   let pgMemberRepository: MockProxy<CreateMemberRepository>
@@ -25,10 +26,10 @@ import { MemberAlreadyExistsError } from '@/application/errors'
     timekeeper.freeze('2024-07-15 00:00:00')
     pgDeliveryRepoDefaultResponse = { ...memberFakeData, id: '1', created_at: new sm.DateTime.MomentAdapter(), updated_at: new sm.DateTime.MomentAdapter() }
     pgMemberRepository = mock()
-    formatMemberDataService = jest.fn()
+    formatMemberDataService = vi.fn()
     formatMemberDataService.mockReturnValue({ formatedData: 'anydata' })
     sut = new CreateMemberController(pgMemberRepository, formatMemberDataService)
-    controllerBuildValidatorSpy = jest.spyOn(sut, 'buildValidator')
+    controllerBuildValidatorSpy = vi.spyOn(sut, 'buildValidator')
     validatorMock.validate.mockResolvedValue(null)
     controllerBuildValidatorSpy.mockReturnValue(validatorMock)
     pgMemberRepository.create.mockResolvedValue({ ...memberFakeData, id: '1', created_at: new sm.DateTime.MomentAdapter(), updated_at: new sm.DateTime.MomentAdapter() })
@@ -39,11 +40,11 @@ import { MemberAlreadyExistsError } from '@/application/errors'
   })
 
   describe('format data', () => {
-    it('should call formatMemberData with correct value', async () => {
+    it.only('should call formatMemberData with correct value', async () => {
       await sut.perform(httpRequest)
 
       expect(formatMemberDataService).toHaveBeenCalled()
-      expect(formatMemberDataService).toHaveBeenCalledWith(httpRequest.body)
+      expect(formatMemberDataService).toHaveBeenCalledWith(CreateMemberModelFactory.factory(httpRequest.body))
     })
   })
 

@@ -1,4 +1,3 @@
-import mock, { MockProxy } from 'jest-mock-extended/lib/Mock'
 import { SerializeErrors, Validation } from '@/application/contract/validation'
 import { notFound } from '@/application/helpers/http'
 import { RecordNotFoundError } from '@/application/errors'
@@ -6,7 +5,9 @@ import { UpdateMember } from '@/data/domain/features/update/update-member'
 import { makeFakeMember } from '../../stubs'
 import { LoadMemberByInternalIdController, UpdateMemberController } from '@/application/controller'
 import { LoadByInternalIdRepository } from '@/data/domain/features'
-import { MemberModel } from '@adamsfoodservice/core-models'
+import { MemberModel, OldMemberModel } from '@adamsfoodservice/core-models'
+import { mock, MockProxy } from 'vitest-mock-extended'
+import memberModelToFirebaseSchema from '@/application/utils/dto'
 
 describe('Load Member By internal_id', () => {
   let pgMemberRepository: MockProxy<LoadByInternalIdRepository>
@@ -17,12 +18,14 @@ describe('Load Member By internal_id', () => {
   const validatorMock = mock<Validation & SerializeErrors>()
   let controllerBuildValidatorSpy: any
   let pgMemberRepositoryResponse: MemberModel
+  let pgMemberRepositoryResponseOld: OldMemberModel
   beforeAll(() => {
     pgMemberRepositoryResponse = makeFakeMember()
+    pgMemberRepositoryResponseOld = memberModelToFirebaseSchema(pgMemberRepositoryResponse)
     pgMemberRepository = mock()
     pgMemberRepository.loadByInternalId.mockResolvedValue(pgMemberRepositoryResponse)
     sut = new LoadMemberByInternalIdController(pgMemberRepository)
-    controllerBuildValidatorSpy = jest.spyOn(sut, 'buildValidator')
+    controllerBuildValidatorSpy = vi.spyOn(sut, 'buildValidator')
     validatorMock.validate.mockResolvedValue(null)
     controllerBuildValidatorSpy.mockReturnValue(validatorMock)
   })
@@ -52,7 +55,7 @@ describe('Load Member By internal_id', () => {
 
     expect(controllerResponse).toEqual({
       statusCode: 200,
-      body: pgMemberRepositoryResponse
+      body: pgMemberRepositoryResponseOld
     })
   })
 })

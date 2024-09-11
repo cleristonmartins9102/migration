@@ -1,5 +1,6 @@
 import { Controller, HttpRequest, HttpResponse } from '@/application/contract';
 import { badRequest, ok } from '@/application/helpers/http';
+import memberModelToFirebaseSchema from '@/application/utils/dto';
 import { LoadByPhoneNumberRepository } from '@/data/domain/features/load';
 
 type InputParams = {
@@ -12,6 +13,8 @@ export class LoadMemberByPhoneNumberController extends Controller<any, any> {
     const { params } = httpRequest
     if (!params) return badRequest('params')
     const repositoryResponse = await this.pgMemberRepository.loadByPhoneNumber(params?.phone_number)
-    return ok(repositoryResponse)
+    if(!repositoryResponse) return badRequest('phone_number')
+    const mappedResponse = memberModelToFirebaseSchema(repositoryResponse)
+    return ok(mappedResponse)
   }
 }

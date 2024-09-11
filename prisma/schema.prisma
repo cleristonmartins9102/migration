@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url = env("DATABASE_URL")
 }
 
 model Member {
@@ -20,14 +20,13 @@ model Member {
   role            String
   web_parent      Int
   branch          Json
+  payroll_number  Int @default(0)
+  shop_name       String
   created_at      DateTime  @default(now())
   updated_at      DateTime  @updatedAt
 
   // Optional one-to-one relation to Address
   location         Location?  @relation("MemberLocation")
-
-  // Optional one-to-one relation to Shop
-  membershop       MemberShop?     @relation("MemberShop")
 
   // Optional one-to-one relation to Contact
   contact         Contact?  @relation("MemberContact")
@@ -37,25 +36,6 @@ model Member {
 
   // Optional one-to-one relation to Settings
   settings        Settings? @relation("MemberSettings")
-
-  // Optional one-to-one relation to Settings
-  memberhousehould  MemberHouseHold? @relation("MemberHouseHold")
-}
-
-model MemberHouseHold {
-  id        Int      @id @default(autoincrement())
-  payroll_number Int
-
-  member    Member? @relation("MemberHouseHold", fields: [memberId], references: [id], onDelete: Cascade)
-  memberId  Int?    @unique
-}
-
-model MemberShop {
-  id        Int     @id @default(autoincrement())
-  name      String
-
-  member    Member? @relation("MemberShop", fields: [memberId], references: [id], onDelete: Cascade)
-  memberId  Int?    @unique
 }
 
 model Location {

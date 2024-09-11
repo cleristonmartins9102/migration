@@ -48,7 +48,6 @@ export class UpdateMemberController extends Controller<any, any> {
    */
   async perform(httpRequest: HttpRequest<InputBody, any>): Promise<HttpResponse<any>> {
     const { body, contentType } = httpRequest;
-    
     // Validate that the request body is present
     if (!body) return badRequest('body');
     
