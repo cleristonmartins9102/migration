@@ -11,7 +11,6 @@ import { Wallet } from '@adamsfoodservice/core-models/dist/types/models/general'
 import { storage } from '@/application/storage/storage';
 import { LoadWithCriteriaRepository } from '@/data/domain/features/load/load-with-criteria-repository';
 import { Contracts } from '@adamsfoodservice/shared-modules'
-import { resetDb } from 'tests/helpers/resetDb';
 
 type Contracts = CreateMemberRepository 
 & LoadByIdRepository 
