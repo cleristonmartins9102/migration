@@ -18,14 +18,14 @@ describe('Dto', () => {
     expect(result.web_parent).toBe(fakeMemeber.web_parent)
     expect(result.transac_marketing_notifications).toEqual({
       marketing: {
-        sms: fakeMemeber.settings.transac_marketing_notifications.marketing.sms,
-        email: fakeMemeber.settings.transac_marketing_notifications.marketing.email,
-        push: fakeMemeber.settings.transac_marketing_notifications.marketing.push
+        sms: fakeMemeber.settings.marketing_sms,
+        email: fakeMemeber.settings.marketing_email,
+        push: fakeMemeber.settings.marketing_push
       },
       transactional: {
-        sms: fakeMemeber.settings.transac_marketing_notifications.transactional.sms,
-        email: fakeMemeber.settings.transac_marketing_notifications.transactional.email,
-        push: fakeMemeber.settings.transac_marketing_notifications.transactional.push,
+        sms: fakeMemeber.settings.transactional_sms,
+        email: fakeMemeber.settings.transactional_email,
+        push: fakeMemeber.settings.transactional_push,
       }
     })
 
@@ -36,13 +36,13 @@ describe('Dto', () => {
     })
 
     expect(result.shop_address).toBe(fakeMemeber.location.address)
-    expect(result.delivery_day_1).toBe(fakeMemeber.settings.delivery_day_1)
-    expect(result.delivery_day_2).toBe(fakeMemeber.settings.delivery_day_2)
-    expect(result.delivery_day_3).toBe(fakeMemeber.settings.delivery_day_3)
-    expect(result.delivery_day_4).toBe(fakeMemeber.settings.delivery_day_4)
-    expect(result.delivery_day_5).toBe(fakeMemeber.settings.delivery_day_5)
-    expect(result.delivery_day_6).toBe(fakeMemeber.settings.delivery_day_6)
-    expect(result.delivery_day_7).toBe(fakeMemeber.settings.delivery_day_7)
+    expect(result.delivery_day_1).toBe(true)
+    expect(result.delivery_day_2).toBe(false)
+    expect(result.delivery_day_3).toBe(true)
+    expect(result.delivery_day_4).toBe(false)
+    expect(result.delivery_day_5).toBe(false)
+    expect(result.delivery_day_6).toBe(false)
+    expect(result.delivery_day_7).toBe(true)
     expect(result.payroll_number).toBe(fakeMemeber.payroll_number ?? 0)
     expect(result.disabled).toBe(fakeMemeber.disabled)
     expect(result.invoiced_by).toBe(fakeMemeber.invoiced_by)
@@ -55,9 +55,9 @@ describe('Dto', () => {
     expect(result.shop_name).toBe(fakeMemeber.shop.name)
     expect(result.push_asked).toBe(fakeMemeber.settings.push_asked)
     expect(result.notifications).toEqual({
-      sms: fakeMemeber.settings.transac_marketing_notifications.transactional.sms,
-      email: fakeMemeber.settings.transac_marketing_notifications.transactional.email,
-      push: fakeMemeber.settings.transac_marketing_notifications.transactional.push
+      sms: fakeMemeber.settings.transactional_sms,
+      email: fakeMemeber.settings.transactional_email,
+      push: fakeMemeber.settings.transactional_push
     })
     expect(result.email_verified).toBe(fakeMemeber.email_verified)
     expect(result.can_deliver).toBe(fakeMemeber.settings.can_deliver)

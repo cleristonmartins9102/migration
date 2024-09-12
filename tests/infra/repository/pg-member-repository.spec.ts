@@ -104,24 +104,17 @@ describe('PgMemberRepository', () => {
       const sut = new PgMemberRepository()
       const { wallet, location, settings, contact, ...rest } = createMemberData
       await sut.create(createMemberData, client)
-      const deliveryDays = []
-      if (settings.delivery_day_1) deliveryDays.push('mon')
-      if (settings.delivery_day_2) deliveryDays.push('tue')
-      if (settings.delivery_day_3) deliveryDays.push('wed')
-      if (settings.delivery_day_4) deliveryDays.push('thu')
-      if (settings.delivery_day_5) deliveryDays.push('fri')
-      if (settings.delivery_day_6) deliveryDays.push('sat')
-      if (settings.delivery_day_7) deliveryDays.push('sun')
+      const deliveryDays = settings.delivery_day
       const settingsHandled = {
         can_deliver : settings.can_deliver,
         delivery_day : deliveryDays,
         push_asked : settings.push_asked,
-        marketing_email : settings.transac_marketing_notifications.marketing.email,
-        marketing_push : settings.transac_marketing_notifications.marketing.push,
-        marketing_sms : settings.transac_marketing_notifications.marketing.sms,
-        transactional_email : settings.transac_marketing_notifications.transactional.email,
-        transactional_push : settings.transac_marketing_notifications.transactional.push,
-        transactional_sms : settings.transac_marketing_notifications.transactional.sms
+        marketing_email : settings.marketing_email,
+        marketing_push : settings.marketing_push,
+        marketing_sms : settings.marketing_sms,
+        transactional_email : settings.transactional_email,
+        transactional_push : settings.transactional_push,
+        transactional_sms : settings.transactional_sms
       }
       // expect(createSettingsMock).toHaveBeenCalled()
       // expect(createSettingsMock).toHaveBeenCalledWith({ data: { ...settingsHandled, member: { connect: { id: '1' } } } })

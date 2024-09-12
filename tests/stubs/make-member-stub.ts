@@ -33,14 +33,7 @@ export const makeFakeMember = (): MemberModel => {
     },
     settings: {
       can_deliver: true,
-      delivery_day_1: false,
-      delivery_day_2: false,
-      delivery_day_3: false,
-      delivery_day_4: false,
-      delivery_day_5: false,
-      delivery_day_6: false,
-      delivery_day_7: false,
-
+      delivery_day: ['mon', 'wed', 'sun'],
       push_asked: true,
       transac_marketing_notifications: {
         marketing: {

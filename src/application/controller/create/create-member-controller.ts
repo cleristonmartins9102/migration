@@ -18,7 +18,6 @@ export class CreateMemberController extends Controller<any, any> {
   ) { super() }
 
   async perform(httpRequest: HttpRequest<CreateMemberController.Input, unknown>): Promise<HttpResponse<any>> {
-    console.log(prismaClient)
     const { body } = httpRequest
     let repositoryResponse: any
     try {
