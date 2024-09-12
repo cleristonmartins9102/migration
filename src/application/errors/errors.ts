@@ -132,3 +132,11 @@ export class MissingJWTSecret extends CustomError {
     this.name = 'MissingJwtSecret'
   }
 }
+
+export class ProxyError extends CustomError {
+  constructor (proxyName: string, errorCode: number, message?: string) {
+    super(`the proxy ${proxyName} failed with error ${errorCode}`)
+    this.name = 'ProxyError'
+    super.message = message ?? `The ${proxyName} has failed with error ${errorCode}`
+  }
+}

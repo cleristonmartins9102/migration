@@ -6,6 +6,7 @@ import { MemberModel } from '@adamsfoodservice/core-models';
 import { PrismaClient } from '@prisma/client';
 import { PostgreSqlContainer } from '@testcontainers/postgresql'; 
 import { resetDb } from 'tests/helpers/resetDb';
+import prismaClient from 'prisma/prisma-client-object';
 
 
 describe('PgMemberRepository', () => {
@@ -18,10 +19,7 @@ describe('PgMemberRepository', () => {
   beforeAll(async () => {
     timekeeper.freeze('2024-08-05T11:47:36')
     postgresContainer = await new PostgreSqlContainer().start();
-    client = new PrismaClient({
-      datasourceUrl: 'postgresql://postgres:postgres@localhost:5432/member-dev-local',
-    })
-    await client.$connect();
+    client = new PrismaClient()
   })
 
   beforeEach(() => {
@@ -29,26 +27,12 @@ describe('PgMemberRepository', () => {
   })
 
   afterAll(async () => {
-    await client.$transaction([
-      client.contact.deleteMany(),
-      client.member.deleteMany(),
-      client.wallet.deleteMany(),
-      client.location.deleteMany(),
-      client.member.deleteMany(),
-    ])
     await client.$disconnect()
     await postgresContainer.stop();
   })
 
   describe('Save', () => {
     beforeEach(async () => {
-      await client.$transaction([
-        client.member.deleteMany(),
-        client.contact.deleteMany(),
-        client.member.deleteMany(),
-        client.wallet.deleteMany(),
-        client.location.deleteMany(),
-      ])
     })
 
     it.only('should call findUnique with correct value', async () => {
@@ -95,9 +79,6 @@ describe('PgMemberRepository', () => {
       const sut = new PgMemberRepository()
       const { wallet, location, settings, contact, ...rest } = createMemberData
       await sut.create(createMemberData, client)
-
-      // expect(createLocationMock).toHaveBeenCalled()
-      // expect(createLocationMock).toHaveBeenCalledWith({ data: { ...location, member: { connect: { id: '1' } } } })
     })
 
     it('should call settings.create with correct value', async () => {
@@ -116,8 +97,8 @@ describe('PgMemberRepository', () => {
         transactional_push : settings.transactional_push,
         transactional_sms : settings.transactional_sms
       }
-      // expect(createSettingsMock).toHaveBeenCalled()
-      // expect(createSettingsMock).toHaveBeenCalledWith({ data: { ...settingsHandled, member: { connect: { id: '1' } } } })
+      expect(prismaClient.settings.create).toHaveBeenCalled()
+      expect(prismaClient.settings.create).toHaveBeenCalledWith({ data: { ...settingsHandled, member: { connect: { id: '1' } } } })
     })
 
     it('should call wallet.create with correct value', async () => {
@@ -125,38 +106,17 @@ describe('PgMemberRepository', () => {
       const { wallet, location, settings, contact, ...rest } = createMemberData
       await sut.create(createMemberData, client)
 
-      // expect(createWalletMock).toHaveBeenCalled()
-      // expect(createWalletMock).toHaveBeenCalledWith({ data: { ...wallet, member: { connect: { id: '1' } } } })
-    })
-
-    it('should call shop.create with correct value if is a shop custumer', async () => {
-      const sut = new PgMemberRepository()
-      const { wallet, location, settings, contact, ...rest } = createMemberData
-      await sut.create(createMemberData, client)
-
-      // expect(createShopMock).toHaveBeenCalled()
-      // expect(createShopMock).toHaveBeenCalledWith({ data: { member: { connect: { id: '1' } } } })
-    })
-
-    it('should not call shop.create with correct value if is not a shop', async () => {
-      const sut = new PgMemberRepository()
-      const { ...withoutShop } = createMemberData
-
-      await sut.create(withoutShop, client)
-
-      // expect(createShopMock).not.toHaveBeenCalled()
+      expect(prismaClient.wallet.create).toHaveBeenCalled()
+      expect(prismaClient.wallet.create).toHaveBeenCalledWith({ data: { ...wallet, member: { connect: { id: '1' } } } })
     })
 
     it('should returns the same value received from prisma', async () => {
-    //  createMemberMock.mockResolvedValueOnce({ ...rest, created_at: '2024', updated_at: '2024', id: '1' })
-
       const sut = new PgMemberRepository()
       const data = await sut.create(createMemberData, client)
       expect(data).toMatchObject({ ...rest, id: '1' })
     })
 
     it('should rethrow if prisma throws', async () => {
-   //   createMemberMock.mockRejectedValueOnce(new Error(''))
       const sut = new PgMemberRepository()
 
       await expect(sut.create(createMemberData, client)).rejects.toThrow()
