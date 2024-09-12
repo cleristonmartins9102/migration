@@ -4,3 +4,4 @@ coverals
 credentials_sql.json
 credentials.json
 .env
+coverage
