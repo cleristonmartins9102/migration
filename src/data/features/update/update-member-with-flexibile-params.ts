@@ -37,7 +37,7 @@ export class UpdateMemberWithFlexibleParams implements UpdateMember {
    * @param updateMemberData - The data containing the fields to be updated.
    * @returns An object containing the status of each field that was updated.
    */
-  async update(updateMemberData: UpdateMemberModel): Promise<UpdateMember.UpdateResult> {
+  async update(updateMemberData: UpdateMemberModel): Promise<any> {
     let member: any
     let paramName = ''
     let paramValue = ''
