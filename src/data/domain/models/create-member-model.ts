@@ -1,4 +1,4 @@
-import { Branch, MemberModel, MemberShip } from '@adamsfoodservice/core-models'
+import { Branch, MemberModel, Member } from '@adamsfoodservice/core-models'
 import { Contact, Location, Shop, Wallet } from '@adamsfoodservice/core-models/dist/types/models/general'
 
 export type CreateMemberModel = Omit<MemberModel, 'id' | 'created_at' | 'updated_at' | 'created_by' | 'updated_by'>
@@ -17,7 +17,7 @@ export class CreateMemberShop {
   shop: Shop
   wallet: Wallet
   location: Location
-  settings: MemberShip.MemberShipSettings
+  settings: Member.MemberSettings
   contact: Contact
   web_parent: number
   payroll_number: number

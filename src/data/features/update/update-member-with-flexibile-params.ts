@@ -1,6 +1,7 @@
-import { RecordNotFoundError } from '@/application/errors'
+import { PrismaError, RecordNotFoundError } from '@/application/errors'
 import { LoadByInternalIdRepository, LoadByUserAccountIdRepository, UpdateMember, UpdateMemberModel, UpdateMemberRepository } from '@/data/domain/features'
 import { MemberUpdatePayload } from '@/data/models/logical'
+import { Prisma } from '@prisma/client'
 /**
  * The `UpdateMemberWithFlexibleParams` class implements the `UpdateMember` interface,
  * providing a flexible way to update member data based on different identification parameters.
@@ -42,32 +43,56 @@ export class UpdateMemberWithFlexibleParams implements UpdateMember {
     let paramName = ''
     let paramValue = ''
     
-    // Check if member is identified by user_account_id
-    if (updateMemberData.user_account_id) {
-      member = await this.pgMemberRepository.loadByUserAccountId(updateMemberData.user_account_id)
-      paramName = 'id'
-      paramValue = updateMemberData.id
-    
-    // Check if member is identified by internal_id
-    } else if (updateMemberData.internal_id) {
-      member = await this.pgMemberRepository.loadByInternalId(updateMemberData.internal_id)
-      paramName = 'internal_id'
-      paramValue = updateMemberData.internal_id
+    try {
+
+      // Check if member is identified by user_account_id
+      if (updateMemberData.user_account_id) {
+        member = await this.pgMemberRepository.loadByUserAccountId(updateMemberData.user_account_id)
+        paramName = 'id'
+        paramValue = updateMemberData.id
+      
+      // Check if member is identified by internal_id
+      } else if (updateMemberData.internal_id) {
+        member = await this.pgMemberRepository.loadByInternalId(updateMemberData.internal_id)
+        paramName = 'internal_id'
+        paramValue = updateMemberData.internal_id
+      }
+  
+      // If no member is found, throw an error
+      if (!member) {
+        throw new RecordNotFoundError('member', paramName, paramValue)
+      }
+  
+      // Create a new MemberUpdatePayload with the updated data
+      const updatedMemberModel = new MemberUpdatePayload(member, updateMemberData)
+  
+      // Update the member in the repository
+
+      await this.pgMemberRepository.update(updatedMemberModel)
+      
+      // Return the fields that were updated
+      return updatedMemberModel.getUpdatedFields()
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        console.error(`Prisma Client Known Request Error: ${error.message}`);
+        throw new PrismaError(new Error('internal error'))
+      } else if (error instanceof Prisma.PrismaClientUnknownRequestError) {
+        console.error(`Prisma Client Unknown Request Error: ${error.message}`);
+        throw new PrismaError(new Error('internal error'))
+      } else if (error instanceof Prisma.PrismaClientRustPanicError) {
+        console.error(`Prisma Client Rust Panic Error: ${error.message}`);
+        throw new PrismaError(new Error('internal error'))
+      } else if (error instanceof Prisma.PrismaClientInitializationError) {
+        console.error(`Prisma Client Initialization Error: ${error.message}`);
+        throw new PrismaError(new Error('internal error'))
+      } else if (error instanceof Prisma.PrismaClientValidationError) {
+        console.error(`Prisma Client Validation Error: ${error.message}`);
+        throw new PrismaError(new Error('internal error'))
+      } else {
+        if (error instanceof Error)
+        throw new PrismaError(error)
+      }
     }
-
-    // If no member is found, throw an error
-    if (!member) {
-      throw new RecordNotFoundError('member', paramName, paramValue)
-    }
-
-    // Create a new MemberUpdatePayload with the updated data
-    const updatedMemberModel = new MemberUpdatePayload(member, updateMemberData)
-
-    // Update the member in the repository
-    await this.pgMemberRepository.update(updatedMemberModel)
-    
-    // Return the fields that were updated
-    return updatedMemberModel.getUpdatedFields()
   }
 }
 

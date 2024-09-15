@@ -6,7 +6,7 @@ export class PgWalletRepository implements UpdateWalletBalanceRepository {
   async updateBalance(params: UpdateWalletRepository.Params): Promise<boolean> {
     const prisma = new PrismaClient();
     try {
-      const member = await prisma.member.findUnique({ where: { internal_id: params.internal_id }, include: { wallet: true } })
+      const member: any = await prisma.member.findMany({ where: { internal_id: params.internal_id }, include: { wallet: true } })
       if (!member) throw new RecordNotFoundError('member', 'internal_id', params.internal_id)
       const wallet: any = { ...member.wallet, balance: params.balance }
       await prisma.wallet.update({ where: { id: wallet.id }, data: { balance: params.balance } })

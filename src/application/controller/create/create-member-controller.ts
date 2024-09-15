@@ -27,7 +27,6 @@ export class CreateMemberController extends Controller<any, any> {
         repositoryResponse = await this.pgMemberRepository.create(computedBodyFormatted, prismaClient)
       }
     } catch (error) {
-      console.log(error)
       if (error instanceof MemberAlreadyExistsError) {
         return badRequest({ error: error.message })
       }
@@ -42,7 +41,7 @@ export class CreateMemberController extends Controller<any, any> {
       ...BuilderValidator.of('first_name').isString().build(),
       ...BuilderValidator.of('last_name').isString().build(),
       ...BuilderValidator.of('phone_number').isString().build(),
-      ...BuilderValidator.of('email').validateEmail().build(),
+      // ...BuilderValidator.of('email').validateEmail().build(),
       ...BuilderValidator.of('customer_type').isString().build(),
       ...BuilderValidator.of('branch_id').isString().build(),
       ...BuilderValidator.of('shop_address').isString().build(),
@@ -69,6 +68,7 @@ export namespace CreateMemberController {
     branch_id: string
     phone_number: string
     customer_type: string
+    internal_id?: string
     email: string
     town: string
     postcode: string
@@ -78,5 +78,6 @@ export namespace CreateMemberController {
     push_marketing: boolean
     email_marketing: boolean
     sms_marketing: boolean
+    web_parent?: number
   }
 }

@@ -196,5 +196,5 @@ import { Middleware } from '@adamsfoodservice/shared-middleware'
  */
 
 export const createMemberRouter = (router: Router): void => {
-  router.put('/create', expressAdapter(createMemberControllerFactory()))
+  router.put('/member/v1/create', expressAdapter(createMemberControllerFactory()))
 }

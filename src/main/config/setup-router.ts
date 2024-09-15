@@ -3,10 +3,11 @@ import { createMemberRouter, deleteMemberRouter, acceptMemberRouter, loadRouters
 import { updateMemberSettingsRouter } from '../routers/update/member/update-member-settings-router'
 import { updateWalletBalanceFromErpDataRouter } from '../routers/update/wallet/update-wallet-balance-from-erp-data-router'
 import { rejectMemberRouter } from '../routers/reject'
+import { createAuditRouter } from '../routers/create/create-audit-router'
 
 export const setupRouters = async (app: Express): Promise<void> => {
   const router = Router()
-  app.use('/api/member/v1', router)
+  app.use('/api', router)
   createMemberRouter(router)
   updateMemberRouter(router)
   loadRouters(router)
@@ -15,4 +16,5 @@ export const setupRouters = async (app: Express): Promise<void> => {
   updateMemberSettingsRouter(router)
   updateWalletBalanceFromErpDataRouter(router)
   rejectMemberRouter(router)
+  createAuditRouter(router)
 }

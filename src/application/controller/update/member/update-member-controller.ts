@@ -50,7 +50,6 @@ export class UpdateMemberController extends Controller<any, any> {
     const { body, contentType } = httpRequest;
     // Validate that the request body is present
     if (!body) return badRequest('body');
-    
     try {
       // Validate the content type of the request
       const validator = new AllowedContentTypesValidator([ContentTypes.Json, ContentTypes.Urlencoded]);
@@ -62,16 +61,16 @@ export class UpdateMemberController extends Controller<any, any> {
         const validator = new RequiredParameterValidator('file');
         const error = await validator.validate(body);
         if (error) return badRequest(error);
-        
         // Translate ERP data to API model
         const { translatedData } = sm.Translate.translateErpDataToApiModel().translate(body.file);
         if (translatedData.length === 0) return ok(false);
-        
+
         // Perform the update using the translated data
         return ok(await this.updateMemberUseCase.update(translatedData[0] as any));
       
       // Handle updates from the user (JSON)
       } else {
+
         if (!body.internal_id) {
           body.user_account_id = (storage.currentUser.get() as any).id;
         }
@@ -84,10 +83,11 @@ export class UpdateMemberController extends Controller<any, any> {
       // Handle not found errors specifically
       if (error instanceof RecordNotFoundError) {
         return notFound(error.message);
+      } else {
+        // Re-throw other errors
+        throw error;
       }
       
-      // Re-throw other errors
-      throw error;
     }
   }
 }

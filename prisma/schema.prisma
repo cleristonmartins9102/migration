@@ -7,36 +7,51 @@ datasource db {
   url = env("DATABASE_URL")
 }
 
+model Audit {
+  id             Int @id @default(autoincrement())
+  operation_type String 
+  source_record_id String
+  target_record_id Int?
+  status String 
+  error_message String?
+  source_table_name String
+  operation_details Json
+  performed_by String
+  created_at      DateTime   @default(now())
+  updated_at      DateTime   @updatedAt()
+}
+
+model FirebaseMigration {
+  id             Int @id @default(autoincrement())
+  enable_create_record String 
+  enable_update_record String 
+}
+
 model Member {
-  id             Int       @id @default(autoincrement())
-  user_account_id String    @unique
+  id              Int        @id @default(autoincrement())
+  user_account_id String     @unique
   first_name      String
   last_name       String
   customer_type   String
-  disabled        Boolean @default(true)
-  email_verified  Boolean @default(false)
-  internal_id     String  @unique
+  disabled        Boolean    @default(true)
+  email_verified  Boolean    @default(false)
+  internal_id     String     @unique
   invoiced_by     String
   role            String
-  web_parent      Int
+  web_parent      Int?       
+  web_child      Member?    @relation("MemberToWebParent", fields: [web_parent], references: [id], onDelete: Cascade)
+  web_children    Member[]   @relation("MemberToWebParent")
   branch          Json
-  payroll_number  Int @default(0)
+  payroll_number  Int        @default(0)
   shop_name       String
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @updatedAt
-
-  // Optional one-to-one relation to Address
-  location         Location?  @relation("MemberLocation")
-
-  // Optional one-to-one relation to Contact
-  contact         Contact?  @relation("MemberContact")
-
-  // Optional one-to-one relation to Wallet
-  wallet          Wallet?   @relation("MemberWallet")
-
-  // Optional one-to-one relation to Settings
-  settings        Settings? @relation("MemberSettings")
+  created_at      DateTime   @default(now())
+  updated_at      DateTime   @updatedAt
+  location        Location?  @relation("MemberLocation")
+  contact         Contact?   @relation("MemberContact")
+  wallet          Wallet?    @relation("MemberWallet")
+  settings        Settings?  @relation("MemberSettings")
 }
+
 
 model Location {
   id        Int      @id @default(autoincrement())
@@ -76,8 +91,8 @@ model Wallet {
 
 model Contact {
   id           Int      @id @default(autoincrement())
-  phone_number String
-  email        String
+  phone_number String?
+  email        String?
 
   member       Member?  @relation("MemberContact", fields: [memberId], references: [id], onDelete: Cascade)
   memberId     Int?     @unique

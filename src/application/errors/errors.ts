@@ -11,8 +11,8 @@ export class IsNotStringError extends CustomError {
   }
 }
 export class MemberAlreadyExistsError extends CustomError {
-  constructor (user_account_id: string) {
-    super(`the member already exists with user_account_id - ${user_account_id}`)
+  constructor (user_account_id: string, fieldName = 'user_account_id') {
+    super(`the member already exists with ${fieldName} - ${user_account_id}`)
     this.parameterName = user_account_id
     this.name = 'MemberAlreadyExistsError'
   }

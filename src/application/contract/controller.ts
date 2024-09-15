@@ -10,7 +10,9 @@ export abstract class Controller<reqBodyType, resType> {
   async handler (httpRequest: HttpRequest<reqBodyType>): Promise<HttpResponse<resType>> {
     const validator: ValidationType & SerializeErrors = this.buildValidator()
     const error: any = await validator.validate(httpRequest.body)
-    if (error) return badRequest(validator.serializeError()) as any
+    if (error) {
+      console.log(httpRequest.body)
+      return badRequest(validator.serializeError()) as any}
     try {
       return await this.perform(httpRequest)
     } catch (error: unknown) {

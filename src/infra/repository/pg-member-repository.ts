@@ -25,10 +25,19 @@ type Contracts = CreateMemberRepository
 & LoadByInternalIdBatchRepository
 & LoadWithCriteriaRepository
 export class PgMemberRepository implements Contracts {
-  async create(memberData: CreateMemberModel, prisma: PrismaClient): Promise<MemberModel> {
-    const memberExists = await prisma.member.findUnique({ where: { user_account_id: memberData.user_account_id } })
-    console.log(memberExists)
+  async create(memberData: CreateMemberModel, prismas: PrismaClient): Promise<MemberModel> {
+    const prisma = new PrismaClient({
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL
+        }
+      }
+    });;
+    let memberExists = await prisma.member.findUnique({ where: { user_account_id: memberData.user_account_id } })
     if (memberExists) throw new MemberAlreadyExistsError(memberData.user_account_id)
+    memberExists = await prisma.member.findUnique({ where: { internal_id: memberData.internal_id } })
+    if (memberExists) throw new MemberAlreadyExistsError(memberData.internal_id, 'internal_id')
+
     const { wallet, location, settings, contact, shop,  ...onlyMemberData } = memberData as any
     const deliveryDays = []
     if (settings.delivery_day_1) deliveryDays.push('mon')
@@ -49,8 +58,7 @@ export class PgMemberRepository implements Contracts {
       transactional_push: settings.transac_marketing_notifications.transactional.push,
       transactional_sms: settings.transac_marketing_notifications.transactional.sms
     }
-
-    const memberPrismaResponse = await prisma.member.create({ data: { ...onlyMemberData, internal_id: Math.floor(1000 + Math.random()).toString(), shop_name: memberData.shop.name } as any })
+    const memberPrismaResponse = await prisma.member.create({ data: { ...onlyMemberData, internal_id: memberData.internal_id, shop_name: memberData.shop.name } as any })
 
    await prisma.$transaction([
       prisma.contact.create({ data: { ...contact, member: { connect: { id: memberPrismaResponse.id } } } }),
@@ -70,7 +78,13 @@ export class PgMemberRepository implements Contracts {
   }
 
   async loadByEmail(email: string): Promise<MemberModel | null> {
-    const prisma = new PrismaClient();
+    const prisma = new PrismaClient({
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL
+        }
+      }
+    });;
     const prismaResponse: any = await prisma.member.findFirst(
       {
         where: { contact: { email } },
@@ -108,7 +122,13 @@ export class PgMemberRepository implements Contracts {
   }
 
   async loadById(id: string): Promise<MemberModel | null> {
-    const prisma = new PrismaClient();
+    const prisma = new PrismaClient({
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL
+        }
+      }
+    });;
     const prismaResponse: any = await prisma.member.findUnique(
       {
         where: { id: parseInt(id) },
@@ -148,7 +168,13 @@ export class PgMemberRepository implements Contracts {
 
 
   async loadAll(): Promise<MemberModel[]> {
-    const prisma = new PrismaClient();
+    const prisma = new PrismaClient({
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL
+        }
+      }
+    });;
     const prismaResponse: any = await prisma.member.findMany(
       {
         include: {
@@ -191,7 +217,13 @@ export class PgMemberRepository implements Contracts {
   }
 
   async loadWithCriteria(criteria: Contracts.Predicate.Expression): Promise<MemberModel[]> {
-    const prisma = new PrismaClient();
+    const prisma = new PrismaClient({
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL
+        }
+      }
+    });;
     const dump: any = criteria.dump(SQL.Criteria.DataSourceType.Prisma)
     try {
       const prismaResponse: any = await prisma.member.findMany(
@@ -243,7 +275,13 @@ export class PgMemberRepository implements Contracts {
   }
 
   async loadByInternalIdBatch(internalIdBatch: string[]): Promise<MemberModel[]> {
-    const prisma = new PrismaClient();
+    const prisma = new PrismaClient({
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL
+        }
+      }
+    });;
     const prismaResponse: any = await prisma.member.findMany({
         where: { internal_id: { in: internalIdBatch } }, 
         include: {
@@ -285,7 +323,13 @@ export class PgMemberRepository implements Contracts {
   }
 
   async loadByUserAccountId(userAccountId: string): Promise<MemberModel | null> {
-    const prisma = new PrismaClient();
+    const prisma = new PrismaClient({
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL
+        }
+      }
+    });
     const prismaResponse: any = await prisma.member.findUnique(
       {
         where: { user_account_id: userAccountId },
@@ -324,7 +368,13 @@ export class PgMemberRepository implements Contracts {
   }
 
   async loadWallet (userId?: string): Promise<Wallet | null> {
-    const prisma = new PrismaClient();
+    const prisma = new PrismaClient({
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL
+        }
+      }
+    });;
     const user_account_id = (storage.currentUser.get() as any).id
     const prismaResponse: any = await prisma.member.findUnique(
       {
@@ -345,9 +395,15 @@ export class PgMemberRepository implements Contracts {
   }
 
   async loadByInternalId(internal_id: string): Promise<MemberModel | null> {
-    const prisma = new PrismaClient();
+    const prisma = new PrismaClient({
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL
+        }
+      }
+    });;
     try {
-      const prismaResponse: any = await prisma.member.findUnique({
+      const prismaResponse: any = await prisma.member.findMany({
         where: {
           internal_id,
         },
@@ -390,7 +446,13 @@ export class PgMemberRepository implements Contracts {
   }
 
   async loadByPhoneNumber(phoneNumber: string): Promise<MemberModel | null> {
-    const prisma = new PrismaClient();
+    const prisma = new PrismaClient({
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL
+        }
+      }
+    });;
     const prismaResponse: any = await prisma.member.findFirst({
       where: {
         contact: {
@@ -432,8 +494,14 @@ export class PgMemberRepository implements Contracts {
 
   async update(memberData: UpdateMemberModel): Promise<boolean> {
     const { id, wallet, settings, location, shop, contact, payroll_number, updatedFields, ...withoutId } = memberData as any
-    const prisma = new PrismaClient();
     try {
+      const prisma = new PrismaClient({
+        datasources: {
+          db: {
+            url: process.env.DATABASE_URL as string
+          }
+        } 
+      });
       const data: any = withoutId
       if (payroll_number) data.memberhouse = { update: { payroll_number } }
       if (shop) data.shop = { update: shop }
@@ -447,17 +515,35 @@ export class PgMemberRepository implements Contracts {
       return '' as any
     } catch (error) {
       if (error instanceof Error)
-      console.log(error.message)
       throw new PrismaError(error as any)
     }
     return true
   }
 
   async delete(id: string): Promise<boolean> {
-    const prisma = new PrismaClient()
+    const prisma = new PrismaClient({
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL
+        }
+      }
+    });
     await prisma.member.delete({ where: { id: parseInt(id) } })
     return true
   }
+
+  async deleteByUserAccountId(id: string): Promise<boolean> {
+    const prisma = new PrismaClient({
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL
+        }
+      }
+    });
+    await prisma.member.delete({ where: { user_account_id: id } })
+    return true
+  }
+
 
   private omitMemberId(obj: any, foreignKey?: string) {
     if (obj && typeof obj === 'object') {

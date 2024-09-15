@@ -10,7 +10,7 @@ export class UpdateMemberNotificationDecoratorController extends Controller<any,
   ) {super()}
   async perform(httpRequest: HttpRequest<any, unknown>): Promise<HttpResponse<any>> {
     const updateMemberControllerResponse = await this.updateMemberController.handler(httpRequest)
-    if (updateMemberControllerResponse.body?.contact.phone_number) {
+    if (updateMemberControllerResponse.body?.contact?.phone_number) {
       await this.populateEmailService()
     }
     return updateMemberControllerResponse

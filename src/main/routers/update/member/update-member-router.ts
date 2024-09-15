@@ -4,6 +4,7 @@ import path from 'path'
 import { storage } from '@/application/storage/storage'
 import { Middleware } from '@adamsfoodservice/shared-middleware'
 import { updateMemberNotificationDecoratorControllerFactory } from '@/main/factories/controller'
+import { Utils } from '@adamsfoodservice/shared-modules'
 
 /**
  * @swagger
@@ -182,6 +183,6 @@ import { updateMemberNotificationDecoratorControllerFactory } from '@/main/facto
  *           format: date-time
  */
 export const updateMemberRouter = (router: Router): void => {
-  const authMiddleware = Middleware.userAuth(path.join(__dirname, '../../../../credentials.json'), storage.currentUser)
-  router.post('/update', authMiddleware, expressAdapter(updateMemberNotificationDecoratorControllerFactory()))
+  const authMiddleware = Middleware.userAuth(Utils.PermissionPath.loadPermissionPath() ?? '', storage.currentUser)
+  router.post('/member/v1/update', authMiddleware, expressAdapter(updateMemberNotificationDecoratorControllerFactory()))
 }

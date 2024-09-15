@@ -2,7 +2,8 @@ import { CreateMemberModel, CreateMemberShop } from '@/data/domain/models'
 import { CreateMemberController } from '../controller/create'
 
 export class CreateMemberModelFactory {
-  static factory(body: CreateMemberController.Input): CreateMemberModel {
+  static factory(body: CreateMemberController.Input): any {
+    const buildInternalId = (): string => !body?.internal_id || ['', 0, '0'].includes(body.internal_id) ? `${Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000}-pending` : body.internal_id
     switch (body.customer_type) {
       case 'Z05': { 
         return  {
@@ -16,7 +17,7 @@ export class CreateMemberModelFactory {
           customer_type: body?.customer_type,
           disabled: true,
           email_verified: true,
-          internal_id: '0',
+          internal_id: buildInternalId(),
           invoiced_by: '',
           payroll_number: 1,
           role: '',
@@ -48,7 +49,7 @@ export class CreateMemberModelFactory {
                 sms: body.sms_marketing
               },
               transactional: {
-                email: true,
+                email: !!body.email,
                 push: body.push,
                 sms: body.sms
               }
@@ -58,7 +59,7 @@ export class CreateMemberModelFactory {
             phone_number: body.phone_number,
             email: body.email
           },
-          web_parent: 1
+          web_parent: body?.web_parent ?? null
         }
       }
 
@@ -71,7 +72,7 @@ export class CreateMemberModelFactory {
           customer_type: body?.customer_type,
           disabled: true,
           email_verified: true,
-          internal_id: '0',
+          internal_id: buildInternalId(),
           invoiced_by: '',
           role: '',
           branch: {
@@ -115,8 +116,8 @@ export class CreateMemberModelFactory {
             phone_number: body.phone_number,
             email: body.email
           },
-          web_parent: 1
-        })
+          web_parent: body?.web_parent ?? null
+        } as any)
         
       }
     }
